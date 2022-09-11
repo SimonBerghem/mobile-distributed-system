@@ -1,7 +1,7 @@
 # mobile-distributed-system
 <!-- ![Go](https://github.com/SimonBerghem/mobile-distributed-system) -->
-![GitHub license](https://github.com/SimonBerghem/mobile-distributed-system/blob/master/LICENSE)
-![Lines](https://img.shields.io/tokei/lines/gihub/SimonBerghem/mobile-distributed-system)
+![GitHub license](https://img.shields.io/github/license/SimonBerghem/mobile-distributed-system)
+![Lines](https://img.shields.io/tokei/lines/github/SimonBerghem/mobile-distributed-system)
 
 This is a distributed system that uses the Kademlia algorithm as its communication coordinator between nodes. 
 
