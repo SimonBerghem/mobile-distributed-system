@@ -2,7 +2,7 @@
 This is a distributed system that uses the Kademlia algorithm as its communication coordinator between nodes. 
 
 ## Spin up the network
-1. Open a terminal and move into the `/docker` folder.
+1. Open a terminal and move into the project root folder, `/mobile-distributed-system`
 2. Run `sudo docker stack deploy nodes --compose-file docker-compose.yml` to spin up the network of Kademlia nodes.
 3. Run `sudo docker ps` to show a list of active nodes, this should be atleast 50.
 
