@@ -1,7 +1,9 @@
 # mobile-distributed-system
-<!-- ![Go](https://github.com/SimonBerghem/mobile-distributed-system) -->
+![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/SimonBerghem/mobile-distributed-system)
+![Github top language](https://img.shields.io/github/languages/top/SimonBerghem/mobile-distributed-system)
 ![GitHub license](https://img.shields.io/github/license/SimonBerghem/mobile-distributed-system)
-![Lines](https://img.shields.io/tokei/lines/github/SimonBerghem/mobile-distributed-system)
+![Github lines of code](https://img.shields.io/tokei/lines/github/SimonBerghem/mobile-distributed-system)
+![GitHub language count](https://img.shields.io/github/languages/count/SimonBerghem/mobile-distributed-system)
 
 This is a distributed system that uses the Kademlia algorithm as its communication coordinator between nodes. 
 
