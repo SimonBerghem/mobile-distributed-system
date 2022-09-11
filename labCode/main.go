@@ -2,9 +2,9 @@ package main
 
 import (
 	"log"
-    "net"
+	"net"
 	"fmt"
-    // "strings"
+	// "strings"
 	// "kademlia"
 )
 
