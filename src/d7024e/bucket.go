@@ -4,6 +4,8 @@ import (
 	"container/list"
 )
 
+const bucketSize = 20
+
 // bucket definition
 // contains a List
 type bucket struct {
