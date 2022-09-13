@@ -1,8 +1,15 @@
-FROM alpine:latest
+FROM golang:latest
 
 RUN echo "hello world"
 
+WORKDIR $GOPATH/labCode/github.com/mobile-distributed-system
+RUN apt update
+COPY go.mod .
+RUN go mod download
+COPY . .
 EXPOSE 80/udp
+RUN go run labCode/main.go
+CMD  ["./main"]
 
 # Add the commands needed to put your compiled go binary in the container and
 # run it when the container starts.

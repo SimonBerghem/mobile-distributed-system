@@ -5,12 +5,11 @@ import (
     "net"
 	"fmt"
     // "strings"
-	// . "d7024e"
+	. "d7024e"
 )
 
 func main (){
 
-    fmt.Println("HELLO")
 	ip := GetOutboundIP()
 	fmt.Println(ip)
 
@@ -18,7 +17,7 @@ func main (){
     nodeID := NewRandomKademliaID()
     me := NewContact(nodeID , ip)
     routing := NewRoutingTable(me)
-    kademlia := newKademlia(routing)
+    kademlia := NewKademlia(routing)
 
     fmt.Println(kademlia)
 
