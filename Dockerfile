@@ -8,7 +8,7 @@ COPY go.mod .
 RUN go mod download
 COPY . .
 EXPOSE 80/udp
-RUN go run labCode/main.go
+RUN go run src/main.go
 CMD  ["./main"]
 
 # Add the commands needed to put your compiled go binary in the container and
