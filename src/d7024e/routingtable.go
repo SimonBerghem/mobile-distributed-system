@@ -1,6 +1,5 @@
 package d7024e
 
-
 // RoutingTable definition
 // keeps a refrence contact of me and an array of buckets
 type RoutingTable struct {
