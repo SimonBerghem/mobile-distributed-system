@@ -1,12 +1,12 @@
 FROM golang:latest
 
-# WORKDIR $GOPATH/src/github.com/mobile-distributed-system
-# RUN apt update
-# COPY go.mod .
-# RUN go mod download
-# COPY . .
+WORKDIR $GOPATH/src/github.com/mobile-distributed-system
+RUN apt update
+COPY go.mod .
+RUN go mod download
+COPY . .
 EXPOSE 80/udp
-# RUN go run src/main.go
+RUN go run src/main.go
 # CMD  ["./main"]
 
 # Add the commands needed to put your compiled go binary in the container and

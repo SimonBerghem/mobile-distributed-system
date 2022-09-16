@@ -1,11 +1,12 @@
 package main
 
 import (
-	"log"
+    "log"
     "net"
-	"fmt"
+    "fmt"
     // "strings"
-	. "d7024e"
+
+    "github.com/SimonBerghem/mobile-distributed-system/src/d7024e"
 )
 
 func main (){
@@ -14,14 +15,17 @@ func main (){
 	fmt.Println(ip)
 
 	// Create node
-    nodeID := NewRandomKademliaID()
-    me := NewContact(nodeID , ip)
-    routing := NewRoutingTable(me)
-    kademlia := NewKademlia(routing)
+    nodeID := d7024e.NewRandomKademliaID()
+    me := d7024e.NewContact(nodeID , ip)
+    routing := d7024e.NewRoutingTable(me)
+    node := d7024e.NewKademlia(routing)
+    network := d7024e.NewNetwork()
 
-    fmt.Println(kademlia)
-
+    fmt.Println(node)
+    fmt.Println(network)
     // Add node to network
+    // 
+
 	// Node listens for requests
 }
 

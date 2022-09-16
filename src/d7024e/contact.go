@@ -3,7 +3,7 @@ package d7024e
 import (
 	"fmt"
 	"sort"
-)
+) 
 
 // Contact definition
 // stores the KademliaID, the ip address and the distance
