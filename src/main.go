@@ -11,6 +11,9 @@ import (
 
 func main (){
 
+    defaultIP := "172.20.0.2:80"
+    defaultCon := d7024e.NewContact(d7024e.NewRandomKademliaID(), defaultIP)
+
 	ip := GetOutboundIP()
 	fmt.Println(ip)
 
@@ -21,10 +24,13 @@ func main (){
     node := d7024e.NewKademlia(routing)
     network := d7024e.NewNetwork()
 
+    go d7024e.Listen(ip, 80)
+
     fmt.Println(node)
     fmt.Println(network)
+
     // Add node to network
-    // 
+    network.SendPingMessage(&defaultCon)
 
 	// Node listens for requests
 }

@@ -34,6 +34,7 @@ func Listen(ip string, port int) {
 	}
 
 	conn, err := net.ListenUDP("udp4", addr)
+	fmt.Println("Listening on " + ip)
 	for {
 		HandleConn(conn)
 	}

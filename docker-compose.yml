@@ -18,7 +18,7 @@ services:
     tty: true
     deploy:
       mode: replicated
-      replicas: 50  
+      replicas: 5  
 #        resources:
 #           limits:
 #              cpus: "0.1"
@@ -28,11 +28,15 @@ services:
         delay: 5s
         max_attempts: 3
         window: 10s
-    ports:
-      - "4000:80"
+    # ports:
+      # - "4000:80"
     networks:
       - kademlia_network
       
 networks:
   kademlia_network:
+    ipam:
+      config:
+        - subnet: "172.30.104.31/26"
+          # gateway: "10.0.0.1"
 
