@@ -14,6 +14,8 @@ version: "3"
 services:
   kademliaNodes:
     image: kadlab:latest # Make sure your Docker image has this name.
+    environment:
+      COMPOSE_HTTP_TIMEOUT: "120"
     stdin_open: true
     tty: true
     deploy:
@@ -29,10 +31,10 @@ services:
         max_attempts: 3
         window: 10s
     # ports:
-      # - "4000:80"
+    #   - "4000:80"
     networks:
       - kademlia_network
-      
+
 networks:
   kademlia_network:
     ipam:

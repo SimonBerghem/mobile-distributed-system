@@ -8,6 +8,7 @@ import (
 )
 
 type Network struct {
+	node Kademlia
 }
 
 type Protocol struct {
@@ -18,8 +19,8 @@ type Protocol struct {
 	Message string 		
    }
 
-func NewNetwork() Network {
-	return Network{}
+func NewNetwork(node Kademlia) Network {
+	return Network{node}
 }
 
 func Listen(ip string, port int) {
@@ -34,7 +35,12 @@ func Listen(ip string, port int) {
 	}
 
 	conn, err := net.ListenUDP("udp4", addr)
-	fmt.Println("Listening on " + ip)
+	if err != nil {
+		fmt.Println(err)
+		panic(err)
+	}
+
+	fmt.Println("Listening on " + addrStr)
 	for {
 		HandleConn(conn)
 	}
@@ -44,23 +50,29 @@ func Listen(ip string, port int) {
 func HandleConn(conn *net.UDPConn){
 	buf := make([]byte, 1024)
 	rlen, _ , err := conn.ReadFromUDP(buf)
+	fmt.Println("Got message: ", rlen)
 	if err != nil {
 		fmt.Println(err)
 		// panic(err)
 	}
 
 	values := buf[:rlen]
-	fmt.Println(values)
+	fmt.Println("Message:", values)
 
 }
 
 func (network *Network) SendPingMessage(contact *Contact) {
 
 	conn, err := net.Dial("udp4", contact.Address)
+
 	if err != nil {
 		fmt.Println(err)
 		// panic(err)
 	}
+
+	// TODO: create proper ping message
+	conn.Write([]byte("Hello World!"))
+
 	buf := make([]byte, 1024)
 	rlen, err := conn.Read(buf)
 	if err != nil {
@@ -69,6 +81,8 @@ func (network *Network) SendPingMessage(contact *Contact) {
 	}
 	message := buf[:rlen]
 	fmt.Println(message)
+
+	// TODO: add contact to routing table
 }
 
 func (network *Network) SendFindContactMessage(contact *Contact) {

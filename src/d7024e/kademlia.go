@@ -5,8 +5,8 @@ type Kademlia struct {
 	routing *RoutingTable
 }
 
-func NewKademlia(table *RoutingTable) *Kademlia {
-	return &Kademlia{table}
+func NewKademlia(table *RoutingTable) Kademlia {
+	return Kademlia{table}
 }
 
 func (kademlia *Kademlia) LookupContact(target *Contact) {

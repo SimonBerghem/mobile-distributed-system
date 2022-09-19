@@ -4,6 +4,8 @@ import (
     "log"
     "net"
     "fmt"
+    "strconv"
+    "time"
     // "strings"
 
     "github.com/SimonBerghem/mobile-distributed-system/src/d7024e"
@@ -11,23 +13,29 @@ import (
 
 func main (){
 
-    defaultIP := "172.20.0.2:80"
-    defaultCon := d7024e.NewContact(d7024e.NewRandomKademliaID(), defaultIP)
+    defaultIP := "172.20.0.2"
+    port := 4000
+    defaultCon := d7024e.NewContact(d7024e.NewRandomKademliaID(), defaultIP + ":" + strconv.Itoa(port) )
 
 	ip := GetOutboundIP()
-	fmt.Println(ip)
 
 	// Create node
     nodeID := d7024e.NewRandomKademliaID()
     me := d7024e.NewContact(nodeID , ip)
     routing := d7024e.NewRoutingTable(me)
     node := d7024e.NewKademlia(routing)
-    network := d7024e.NewNetwork()
+    network := d7024e.NewNetwork(node)
 
-    go d7024e.Listen(ip, 80)
+    // fmt.Println(defaultIP != ip, " ", ip)
 
-    fmt.Println(node)
-    fmt.Println(network)
+    if defaultIP != ip {    
+        port = 4001
+    } 
+    
+    go d7024e.Listen(ip, port)
+    time.Sleep(5 * time.Second)
+    // fmt.Println(network, defaultCon)
+    fmt.Println("yo")
 
     // Add node to network
     network.SendPingMessage(&defaultCon)

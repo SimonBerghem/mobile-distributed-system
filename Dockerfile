@@ -5,7 +5,6 @@ RUN apt update
 COPY go.mod .
 RUN go mod download
 COPY . .
-EXPOSE 80/udp
 # RUN go run src/main.go
 RUN go build src/main.go
 CMD  ["./main"]
