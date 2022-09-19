@@ -7,7 +7,7 @@ import (
 	"github.com/urfave/cli"
 )
 
-func kademliaCLI() {
+func KademliaCLI() {
 	app := cli.NewApp()
 	app.Name = "kademlia_cli"
 	app.Usage = "A CLI for running Kademlia tasks"
