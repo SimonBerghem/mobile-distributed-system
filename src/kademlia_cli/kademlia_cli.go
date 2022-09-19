@@ -10,9 +10,9 @@ import (
 func KademliaCLI() {
 	app := cli.NewApp()
 	app.Name = "kademlia_cli"
-	app.Usage = "A CLI for running Kademlia tasks"
+	app.Usage = "A CLI for running Kademlia commands"
 	app.Author = "Casper Lundberg, Simon Malmström Berghem, & Emil Viklander"
-	app.Version = "1.0.0"
+	app.Version = "0.0.0"
 	app.Commands = []cli.Command{
 		{
 			Name:    "put",
