@@ -34,7 +34,7 @@ func main() {
 		port = 4001
 	}
 
-	go d7024e.Listen(ip, port)
+	go network.Listen(ip, port)
 	time.Sleep(5 * time.Second)
 	// fmt.Println(network, defaultCon)
 	fmt.Println("yo")
