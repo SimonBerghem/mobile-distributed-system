@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"log"
 	"os"
+
 	"github.com/urfave/cli"
 )
 
-func KademliaCLI() {
+func InitCLI() {
 	app := cli.NewApp()
 	app.Name = "kademlia_cli"
 	app.Usage = "A CLI for running Kademlia commands"

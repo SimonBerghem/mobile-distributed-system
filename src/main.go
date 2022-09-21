@@ -13,7 +13,7 @@ import (
 
 func main() {
 
-	kademlia_cli.KademliaCLI()
+	kademlia_cli.InitCLI()
 
 	defaultIP := "172.20.0.2"
 	port := 4000
