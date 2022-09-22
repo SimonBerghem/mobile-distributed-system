@@ -44,6 +44,10 @@ func InitNode() {
 	// Node listens for requests
 }
 
+func NewContact(nodeID invalid type, ip string) {
+	panic("unimplemented")
+}
+
 func NewKademlia(table *RoutingTable) Kademlia {
 	return Kademlia{table}
 }
