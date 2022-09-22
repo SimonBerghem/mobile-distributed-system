@@ -14,7 +14,7 @@ type Kademlia struct {
 	routing *RoutingTable
 }
 
-func InitNode() {
+func (kademlia *Kademlia) InitNode() {
 	defaultIP := "172.20.0.2"
 	port := 4000
 	defaultCon := NewContact(NewRandomKademliaID(), defaultIP+":"+strconv.Itoa(port))
