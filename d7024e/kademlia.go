@@ -3,6 +3,7 @@ package d7024e
 import (
 	"fmt"
 	"log"
+	"math/rand"
 	"net"
 	"strconv"
 	"time"
@@ -42,13 +43,9 @@ func InitNode() {
 	// Add node to network
 	network.SendPingMessage(&defaultCon)
 
-	for{
+	for {
 
 	}
-}
-
-func NewContact(nodeID invalid type, ip string) {
-	panic("unimplemented")
 }
 
 func NewKademlia(table *RoutingTable) Kademlia {
