@@ -6,6 +6,13 @@ import (
 	"net"
 	"strconv"
 	"time"
+<<<<<<< HEAD:d7024e/kademlia.go
+=======
+	"math/rand"
+
+	"github.com/SimonBerghem/mobile-distributed-system/src/d7024e"
+	"github.com/SimonBerghem/mobile-distributed-system/src/kademlia_cli"
+>>>>>>> 21fc82c3e921e2aa1dc2fa820ac6be11552b2f56:src/main.go
 )
 
 // Stores routing table
@@ -30,7 +37,8 @@ func InitNode() {
 	// fmt.Println(defaultIP != ip, " ", ip)
 
 	if defaultIP != ip {
-		port = 4001
+		rand.Seed(time.Now().UnixNano())
+		port = rand.Intn(65535-1000) + 1000
 	}
 
 	go network.Listen(ip, port)
@@ -41,7 +49,9 @@ func InitNode() {
 	// Add node to network
 	network.SendPingMessage(&defaultCon)
 
-	// Node listens for requests
+	for{
+
+	}
 }
 
 func NewContact(nodeID invalid type, ip string) {

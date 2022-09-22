@@ -41,8 +41,16 @@ func (network *Network) Listen(ip string, port int) {
 		panic(err)
 	}
 
+	// defer conn.Close()
+
 	fmt.Println("Listening on " + addrStr)
+
+	i := 0
 	for {
+		if network.node.routing.me.Address == "172.20.0.2"{
+			fmt.Println("Looping: ", i)
+			i = i + 1 
+		}
 		network.HandleConn(conn)
 	}
 }
@@ -107,25 +115,16 @@ func (network *Network) SendPingMessage(contact *Contact) {
 		// panic(err)
 	}
 	message := buf[:rlen]
-	fmt.Println(message)
 
-	// TODO: add contact to routing table
-}
+	var proto Protocol
 
-// Creates a protocol containing a PING message
-func (network *Network) createPingMessage() []byte {
-	known := make([]Contact, 0)
-	known = append(known, network.node.routing.me)
-	return CreateProtocol("PING", known, "", nil, "")
-}
+	err = json.Unmarshal(message, &proto)
+	if err != nil {
+		fmt.Println(err)
+		// panic(err)
+	}
 
-// Handles a recieved PING protocol
-func (network *Network) handlePingMessage(proto Protocol) []byte {
-	// Add to routing
 	network.addContacts(proto.Contacts)
-
-	// Send back message with my ip 
-	return network.createPingMessage()
 }
 
 // FIND_NODE
@@ -136,8 +135,11 @@ func (network *Network) SendFindContactMessage(contact *Contact, target *Kademli
 		fmt.Println(err)
 		// panic(err)
 	}
+	originNode := make([]Contact, 0)
+	originNode = append(originNode, network.node.routing.me)
 
-	msg := createFindContactMessage()
+
+	msg := network.createFindContactMessage(target, originNode)
 	conn.Write(msg)
 
 	buf := make([]byte, 1024)
@@ -150,20 +152,64 @@ func (network *Network) SendFindContactMessage(contact *Contact, target *Kademli
 	fmt.Println(message)
 }
 
-// TODO create find message
-func createFindContactMessage() []byte {
-	return make([]byte, 1024)
-}
-
 // FIND_VALUE
 func (network *Network) SendFindDataMessage(hash string) {
 	// TODO
 }
 
+
 // STORE
 func (network *Network) SendStoreMessage(data []byte) {
 	// TODO
 }
+
+
+// Handles a recieved PING protocol
+func (network *Network) handlePingMessage(proto Protocol) []byte {
+	// Add to routing
+	network.addContacts(proto.Contacts)
+
+	// Send back message with my ip 
+	return network.createPingMessage()
+}
+
+func (network *Network) handleFindContactMessage(proto Protocol) []byte {
+
+	network.addContacts(proto.Contacts)
+	target := NewKademliaID(string(proto.Data))
+	contacts := network.node.routing.FindClosestContacts(target, bucketSize)
+	return network.createFindContactMessage(target, contacts)
+}
+
+func(network *Network) handleFindDataMessage() []byte {
+	return make([]byte, 1024)
+}
+
+func(network *Network) handleStoreMessage() []byte {
+	return make([]byte, 1024)
+}
+
+// Creates a byte array containing a PING protocol
+func (network *Network) createPingMessage() []byte {
+	originNode := make([]Contact, 0)
+	originNode = append(originNode, network.node.routing.me)
+	return CreateProtocol("PING", originNode, "", nil, "")
+}
+
+// Creates a byte array containing a FIND_NODE protocol
+func (network *Network) createFindContactMessage(target *KademliaID, contacts []Contact) []byte {
+	return CreateProtocol("FIND_NODE", contacts, "", []byte(target.String()), "")
+	
+}
+
+func(network *Network) createFindDataMessage() []byte {
+	return make([]byte, 1024)
+}
+
+func(network *Network) createStoreMessage() []byte {
+	return make([]byte, 1024)
+}
+
 
 func (network *Network) addContacts (contacts []Contact) {
 	for _, con := range contacts{
