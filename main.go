@@ -8,5 +8,7 @@ import (
 func main() {
 
 	kademlia_cli.InitCLI()
-	d7024e.InitNode()
+
+	node := d7024e.Kademlia{}
+	node.InitNode()
 }
