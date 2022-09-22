@@ -6,6 +6,7 @@ import (
 	"net"
 	"strconv"
 	"time"
+	"math/rand"
 
 	"github.com/SimonBerghem/mobile-distributed-system/src/d7024e"
 	"github.com/SimonBerghem/mobile-distributed-system/src/kademlia_cli"
@@ -31,7 +32,8 @@ func main() {
 	// fmt.Println(defaultIP != ip, " ", ip)
 
 	if defaultIP != ip {
-		port = 4001
+		rand.Seed(time.Now().UnixNano())
+		port = rand.Intn(65535-1000) + 1000
 	}
 
 	go network.Listen(ip, port)
@@ -42,7 +44,9 @@ func main() {
 	// Add node to network
 	network.SendPingMessage(&defaultCon)
 
-	// Node listens for requests
+	for{
+
+	}
 }
 
 // Get preferred outbound ip of this machine
