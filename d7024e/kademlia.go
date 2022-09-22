@@ -6,13 +6,6 @@ import (
 	"net"
 	"strconv"
 	"time"
-<<<<<<< HEAD:d7024e/kademlia.go
-=======
-	"math/rand"
-
-	"github.com/SimonBerghem/mobile-distributed-system/src/d7024e"
-	"github.com/SimonBerghem/mobile-distributed-system/src/kademlia_cli"
->>>>>>> 21fc82c3e921e2aa1dc2fa820ac6be11552b2f56:src/main.go
 )
 
 // Stores routing table
