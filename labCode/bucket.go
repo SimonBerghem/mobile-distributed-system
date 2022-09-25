@@ -10,6 +10,7 @@ type bucket struct {
 	list *list.List
 }
 
+
 // newBucket returns a new instance of a bucket
 func newBucket() *bucket {
 	bucket := &bucket{}

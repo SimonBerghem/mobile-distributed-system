@@ -1,5 +1,9 @@
 FROM alpine:latest
 
+RUN echo "hello world"
+
+EXPOSE 80/udp
+
 # Add the commands needed to put your compiled go binary in the container and
 # run it when the container starts.
 #
