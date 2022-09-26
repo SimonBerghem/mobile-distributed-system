@@ -6,7 +6,7 @@ import (
 	"os"
 	"strconv"
 
-	"d7024e"
+	"github.com/SimonBerghem/mobile-distributed-system/d7024e"
 
 	"github.com/urfave/cli"
 )

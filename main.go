@@ -2,7 +2,7 @@ package main
 
 import (
 	// "github.com/SimonBerghem/mobile-distributed-system/d7024e"
-	"github.com/SimonBerghem/mobile-distributed-system/tree/main/kademlia_cli"
+	"github.com/SimonBerghem/mobile-distributed-system/kademlia_cli"
 )
 
 func main() {
