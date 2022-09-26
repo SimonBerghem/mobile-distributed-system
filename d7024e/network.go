@@ -80,7 +80,7 @@ func (network *Network) HandleConn(conn *net.UDPConn){
 	case "STORE":
 		fmt.Println("STORE")
 	case "FIND_NODE":
-		fmt.Println("FIND_NODE")
+		response = network.handleFindContactMessage(proto)
 	case "FIND_VALUE":
 		fmt.Println("FIND_VALUE")
 	default:
@@ -138,7 +138,6 @@ func (network *Network) SendFindContactMessage(contact *Contact, target *Kademli
 	originNode := make([]Contact, 0)
 	originNode = append(originNode, network.node.routing.me)
 
-
 	msg := network.createFindContactMessage(target, originNode)
 	conn.Write(msg)
 
@@ -149,7 +148,15 @@ func (network *Network) SendFindContactMessage(contact *Contact, target *Kademli
 		// panic(err)
 	}
 	message := buf[:rlen]
-	fmt.Println(message)
+	var proto Protocol
+
+	err = json.Unmarshal(message, &proto)
+	if err != nil {
+		fmt.Println(err)
+		// panic(err)
+	}
+
+	network.addContacts(proto.Contacts)
 }
 
 // FIND_VALUE

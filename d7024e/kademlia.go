@@ -38,10 +38,10 @@ func (kademlia *Kademlia) InitNode() {
 	go network.Listen(ip, port)
 	time.Sleep(5 * time.Second)
 	// fmt.Println(network, defaultCon)
-	fmt.Println("yo")
 
 	// Add node to network
-	network.SendPingMessage(&defaultCon)
+	network.SendFindContactMessage(&defaultCon, nodeID)
+	fmt.Println("Contacts: ", network.node.routing.buckets[159].Len())
 
 	for {
 

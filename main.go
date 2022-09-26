@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	kademlia_cli.InitCLI()
+	go kademlia_cli.InitCLI()
 	// node := d7024e.Kademlia{}
 	// node.InitNode()
 }
