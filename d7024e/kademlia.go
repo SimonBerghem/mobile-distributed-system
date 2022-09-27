@@ -12,6 +12,7 @@ import (
 // Stores routing table
 type Kademlia struct {
 	routing *RoutingTable
+	network *Network
 }
 
 func (kademlia *Kademlia) InitNode() {
@@ -25,8 +26,8 @@ func (kademlia *Kademlia) InitNode() {
 	nodeID := NewRandomKademliaID()
 	me := NewContact(nodeID, ip)
 	routing := NewRoutingTable(me)
-	node := NewKademlia(routing)
-	network := NewNetwork(node)
+	network := NewNetwork()
+	node := NewKademlia(routing, network)
 
 	// fmt.Println(defaultIP != ip, " ", ip)
 
@@ -35,25 +36,43 @@ func (kademlia *Kademlia) InitNode() {
 		port = rand.Intn(65535-1000) + 1000
 	}
 
-	go network.Listen(ip, port)
+	go network.Listen(ip, port, node)
 	time.Sleep(5 * time.Second)
 	// fmt.Println(network, defaultCon)
 
 	// Add node to network
-	network.SendFindContactMessage(&defaultCon, nodeID)
-	fmt.Println("Contacts: ", network.node.routing.buckets[159].Len())
+	network.SendFindContactMessage(&defaultCon, nodeID, node)
+	fmt.Println("Contacts: ", node.routing.buckets[159].Len())
+	node.LookupContact(&node.routing.me)
 
-	// for {
+	// go update()
+	for {
 
-	// }
+	}
 }
 
-func NewKademlia(table *RoutingTable) Kademlia {
-	return Kademlia{table}
+func update() {
+	for{}
+}
+
+func NewKademlia(table *RoutingTable, network *Network) *Kademlia {
+	return &Kademlia{table, network}
 }
 
 func (kademlia *Kademlia) LookupContact(target *Contact) {
-	// TODO
+
+	queryList := kademlia.routing.FindClosestContacts(kademlia.routing.me.ID, bucketSize)
+	fmt.Println("Query len: ", len(queryList))
+	// Pick alpha closest nodes from it knows
+
+	// Send FIND_NODE to each node
+	
+	// Resend FIND_NODE to the new nodes
+	
+	// Nodes not responding quickly are not considered until they answer
+
+	// If FIND_NODE does not return a node closer to already closest, query from non-queried k nodes
+
 }
 
 func (kademlia *Kademlia) LookupData(hash string) {

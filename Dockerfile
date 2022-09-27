@@ -1,6 +1,6 @@
 FROM golang:latest
 
-WORKDIR $GOPATH/src/github.com/mobile-distributed-system
+WORKDIR $GOPATH/pkg/mod/github.com/mobile-distributed-system
 RUN apt update
 COPY go.mod .
 RUN go mod download
@@ -9,10 +9,6 @@ COPY . .
 # RUN go build src/main.go
 RUN go build main.go
 CMD  ["./main"]
-
-RUN echo "hello world"
-
-EXPOSE 80/udp
 
 # Add the commands needed to put your compiled go binary in the container and
 # run it when the container starts.

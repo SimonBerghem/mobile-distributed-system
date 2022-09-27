@@ -3,7 +3,6 @@ package d7024e
 import (
 	"encoding/hex"
 	"math/rand"
-	"fmt"
 	"time"
 )
 
@@ -33,7 +32,6 @@ func NewRandomKademliaID() *KademliaID {
 	for i := 0; i < IDLength; i++ {
 		newKademliaID[i] = uint8(rand.Intn(256))
 	}
-	fmt.Println(newKademliaID)
 	return &newKademliaID
 }
 
