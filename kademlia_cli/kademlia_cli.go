@@ -14,7 +14,7 @@ func InitCLI() {
 	app := cli.NewApp()
 	app.Name = "kademlia_cli"
 	app.Usage = "A CLI for running Kademlia commands"
-	app.Author = "Caspesr Lundberg, Simon Malmström Berghem & Emil Viklander"
+	app.Author = "Caspesr Lundberg, Simon Malmström Berghem & Emil Wiklander"
 	app.Version = "0.0.0"
 	app.Commands = []cli.Command{
 		{
