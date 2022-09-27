@@ -43,9 +43,9 @@ func (kademlia *Kademlia) InitNode() {
 	network.SendFindContactMessage(&defaultCon, nodeID)
 	fmt.Println("Contacts: ", network.node.routing.buckets[159].Len())
 
-	for {
+	// for {
 
-	}
+	// }
 }
 
 func NewKademlia(table *RoutingTable) Kademlia {

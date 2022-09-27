@@ -45,14 +45,14 @@ func (network *Network) Listen(ip string, port int) {
 
 	fmt.Println("Listening on " + addrStr)
 
-	i := 0
-	for {
-		if network.node.routing.me.Address == "172.20.0.2"{
-			fmt.Println("Looping: ", i)
-			i = i + 1 
-		}
-		network.HandleConn(conn)
-	}
+	// i := 0
+	// for {
+	// 	if network.node.routing.me.Address == "172.20.0.2"{
+	// 		fmt.Println("Looping: ", i)
+	// 		i = i + 1 
+	// 	}
+	network.HandleConn(conn)
+	// }
 }
 
 // Check which message has been recevied and handle it accordingly

@@ -4,10 +4,9 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strconv"
+	// "strconv"
 
-	"d7024e"
-
+	// "github.com/SimonBerghem/mobile-distributed-system/d7024e"
 	"github.com/urfave/cli"
 )
 
@@ -51,31 +50,31 @@ func InitCLI() {
 
 func PingTest() {
 
-	ip1 := "172.21.21.21"
-	ip2 := "172.12.12.12"
+	// ip1 := "172.21.21.21"
+	// ip2 := "172.12.12.12"
 
-	port1 := 2121
-	port2 := 1212
+	// port1 := 2121
+	// port2 := 1212
 
-	c1 := d7024e.NewContact(d7024e.NewRandomKademliaID(), ip1+":"+strconv.Itoa(port1))
-	c2 := d7024e.NewContact(d7024e.NewRandomKademliaID(), ip2+":"+strconv.Itoa(port2))
+	// c1 := d7024e.NewContact(d7024e.NewRandomKademliaID(), ip1+":"+strconv.Itoa(port1))
+	// c2 := d7024e.NewContact(d7024e.NewRandomKademliaID(), ip2+":"+strconv.Itoa(port2))
 
-	n1 := c1.NewNetwork(c1.NewKademlia(c1.NewRoutingTable(&c1)))
-	n2 := c2.NewNetwork(c2.NewKademlia(c2.NewRoutingTable(&c2)))
+	// n1 := d7024e.NewNetwork(d7024e.NewKademlia(d7024e.NewRoutingTable(c1)))
+	// n2 := d7024e.NewNetwork(d7024e.NewKademlia(d7024e.NewRoutingTable(c2)))
 
-	ans1 := make(chan string)
-	ans2 := make(chan string)
+	// ans1 := make(chan string)
+	// ans2 := make(chan string)
 
-	fmt.Println("%s is pinging: %s", ip1, ip2)
-	fmt.Println("%s is pinging: %s", ip2, ip1)
+	// fmt.Println("%s is pinging: %s", ip1, ip2)
+	// fmt.Println("%s is pinging: %s", ip2, ip1)
 
-	go n2.Network.Listen(ip2, port2)
-	go n1.Network.Listen(ip1, port1)
+	// go n2.Listen(ip2, port2)
+	// go n1.Listen(ip1, port1)
 
-	go func() { ans1 <- n1.Network.SendPingMessage(&c1) }()
-	go func() { ans2 <- n2.Network.SendPingMessage(&c2) }()
+	// go func() { ans1 <- n1.SendPingMessage(&c1) }()
+	// go func() { ans2 <- n2.SendPingMessage(&c2) }()
 
-	fmt.Println("%s has responded with: ", ip2, <-ans1)
-	fmt.Println("%s has responded with: ", ip1, <-ans2)
+	// fmt.Println("%s has responded with: ", ip2, <-ans1)
+	// fmt.Println("%s has responded with: ", ip1, <-ans2)
 
 }
