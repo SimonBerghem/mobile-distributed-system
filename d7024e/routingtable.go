@@ -1,7 +1,7 @@
 package d7024e
 
 import (
-	"fmt"
+	// "fmt"
 )
 
 // RoutingTable definition
@@ -26,7 +26,7 @@ func (routingTable *RoutingTable) AddContact(contact Contact) {
 	bucketIndex := routingTable.getBucketIndex(contact.ID)
 	bucket := routingTable.buckets[bucketIndex]
 	bucket.AddContact(contact)
-	fmt.Println("CURRENT LENGTH: ", bucket.Len(), " INDEX: ", bucketIndex, " ID: ", contact.ID)
+	// fmt.Println("CURRENT LENGTH: ", bucket.Len(), " INDEX: ", bucketIndex, " ID: ", contact.ID)
 }
 
 // FindClosestContacts finds the count closest Contacts to the target in the RoutingTable

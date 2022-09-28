@@ -74,6 +74,7 @@ func (network *Network) HandleConn(conn *net.UDPConn, node *Kademlia){
 		fmt.Println(err)
 		panic(err)
 	}
+	// fmt.Println("HMMM: ", proto.Contacts)
 
 	switch rpc := proto.Rpc; rpc {
 
@@ -125,11 +126,11 @@ func (network *Network) SendPingMessage(contact *Contact, node *Kademlia) {
 		// panic(err)
 	}
 
-	network.addContacts(proto.Contacts, node)
+	node.routing.AddContact(proto.Contacts[0])
 }
 
 // FIND_NODE
-func (network *Network) SendFindContactMessage(contact *Contact, target *KademliaID, node *Kademlia) {
+func (network *Network) SendFindContactMessage(contact *Contact, target *KademliaID, node *Kademlia) []Contact {
 	
 	conn, err := net.Dial("udp4", contact.Address)
 	if err != nil {
@@ -158,6 +159,10 @@ func (network *Network) SendFindContactMessage(contact *Contact, target *Kademli
 	}
 
 	network.addContacts(proto.Contacts, node)
+	if len(proto.Contacts) > 0{
+		node.routing.AddContact(proto.Contacts[0])
+	}
+	return proto.Contacts
 }
 
 // FIND_VALUE
