@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"fmt"
+	"io"
 	"log"
-	"os"
 
 	// "string"
 
@@ -15,7 +15,7 @@ import (
 
 var app = cli.NewApp()
 
-func InitCLI() {
+func InitCLI(output io.Writer, args []string) {
 	// app := cli.NewApp()
 	app.Name = "kademlia_cli"
 	app.Usage = "A CLI for running Kademlia commands"
@@ -47,7 +47,7 @@ func InitCLI() {
 			},
 		},
 	}
-	err := app.Run(os.Args)
+	err := app.Run(args)
 	if err != nil {
 		log.Fatal(err)
 	}
