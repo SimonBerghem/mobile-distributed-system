@@ -1,6 +1,8 @@
 package d7024e
 
 import (
+	"crypto/sha1"
+	"encoding/hex"
 	"fmt"
 	"log"
 	"math/rand"
@@ -13,6 +15,7 @@ import (
 type Kademlia struct {
 	routing *RoutingTable
 	network *Network
+	data    map[string][]byte
 }
 
 const alpha = 3
@@ -36,50 +39,47 @@ func (kademlia *Kademlia) InitNode() {
 	network := NewNetwork()
 	node := NewKademlia(routing, network)
 
-
-
-
-
-
-	
 	go network.Listen(ip, port, node)
 	time.Sleep(5 * time.Second)
-	 fmt.Println(network, defaultCon)
+	fmt.Println(network, defaultCon)
 
-	 //Add node to network
+	//Add node to network
 	node.routing.AddContact(defaultCon)
-	 network.SendFindContactMessage(&defaultCon, nodeID, node)
-	 fmt.Println("Contacts: ", node.routing.buckets[159].Len())
-	node.LookupContact(&node.routing.me)
+	//network.SendFindContactMessage(&defaultCon, nodeID, node)
+	//fmt.Println("Contacts: ", node.routing.buckets[159].Len())
+	//node.LookupContact(&node.routing.me)
 
+	/* temp  TESTING */
 
+	fmt.Printf("\n\nEmpty map\n%s\n", node.data)
+	d1 := []byte("AAAAA")
+	fmt.Printf("Adding %s with hash: %s\n", d1, hash(d1))
+	network.SendStoreMessage(&me, d1, node)
 
-	
-	fmt.Println("start")
-	
-	fmt.Println(network.Data)
-	network.SendStoreMessage(&defaultCon, []byte("AAAAA"), node)
-	//network.handleStoreMessage(network.createStoreMessage(defaultCon, c), node)
-	fmt.Println(network.Data)
-	network.SendStoreMessage(&defaultCon, []byte("123456789"), node)
-	fmt.Println(network.Data)
-	
-	fmt.Println("end")
+	fmt.Printf("%s\n", node.data)
+	fmt.Printf("Adding %s\n", []byte("123456789"))
+	network.SendStoreMessage(&me, []byte("123456789"), node)
+
+	fmt.Printf("%s\n", node.data)
+	fmt.Printf("Looking up the data with hash %s:\n", hash(d1))
+	fmt.Println(node.LookupData(hash([]byte("AAAAA"))))
+	fmt.Printf("\n\n")
 
 	/*
-	// go update()
-	for {
+		// go update()
+		for {
 
-	}
+		}
 	*/
 }
 
 func update() {
-	for{}
+	for {
+	}
 }
 
 func NewKademlia(table *RoutingTable, network *Network) *Kademlia {
-	return &Kademlia{table, network}
+	return &Kademlia{table, network, make(map[string][]byte)}
 }
 
 func (kademlia *Kademlia) LookupContact(target *Contact) []Contact {
@@ -93,7 +93,9 @@ func (kademlia *Kademlia) LookupContact(target *Contact) []Contact {
 
 	fmt.Println("LEN: ", len(queryList))
 
-	for len(queryList) < 1 {}
+	for len(queryList) < 1 {
+		fmt.Println("LEN: ")
+	}
 
 	for seen.Len() < bucketSize {
 		if len(queryList) == 0 {
@@ -107,7 +109,7 @@ func (kademlia *Kademlia) LookupContact(target *Contact) []Contact {
 		}
 
 		// Remove queried and add to seen
-		if len(queryList) - 1 < 3 {
+		if len(queryList)-1 < 3 {
 			seen.Append(queryList)
 			queryList = queryList[:0]
 		} else {
@@ -115,12 +117,12 @@ func (kademlia *Kademlia) LookupContact(target *Contact) []Contact {
 			queryList = queryList[2:]
 		}
 
-		// Set new closest and 
+		// Set new closest and
 		if candidates.Len() > 0 {
 			candidates.Sort()
 			currentClosest = candidates.contacts[0].ID
 			for _, candidate := range candidates.contacts {
-				if !contains(seen.contacts, candidate) && !contains(queryList, candidate){
+				if !contains(seen.contacts, candidate) && !contains(queryList, candidate) {
 					queryList = append(queryList, candidate)
 				}
 			}
@@ -135,7 +137,7 @@ func (kademlia *Kademlia) lookupContactHelper(seen ContactCandidates, currentClo
 	fmt.Println("ARGS: ", contact, " ", target)
 	candidates := kademlia.network.SendFindContactMessage(contact, target, kademlia)
 	fmt.Println("CANDIDATES: ", candidates)
-	if len(candidates) > 0 && candidates[0].ID.Less(currentClosest){
+	if len(candidates) > 0 && candidates[0].ID.Less(currentClosest) {
 		fmt.Println("FOUND CLOSER CANDIDATES")
 		return candidates
 	} else {
@@ -153,14 +155,18 @@ func contains(list []Contact, target Contact) bool {
 	return false
 }
 
-func (kademlia *Kademlia) LookupData(hash string) {
-	// TODO
+func (kademlia *Kademlia) LookupData(hash string) []byte {
+	return kademlia.data[hash]
 }
 
 func (kademlia *Kademlia) Store(data []byte) {
-	
+	kademlia.data[hash(data)] = data
 }
 
+func hash(data []byte) string {
+	hashbytes := sha1.Sum(data)
+	return hex.EncodeToString(hashbytes[0:IDLength])
+}
 
 // Get preferred outbound ip of this machine
 // Taken from https://stackoverflow.com/questions/23558425/how-do-i-get-the-local-ip-address-in-go
