@@ -8,10 +8,10 @@ import (
 	"github.com/SimonBerghem/mobile-distributed-system/d7024e"
 )
 
-var out io.Writer = os.Stdout
+var output io.Writer = os.Stdout
 
 func main() {
-	cmd.InitCLI(out, os.Args)
 	node := d7024e.Kademlia{}
 	node.InitNode()
+	cmd.InitCLI(output, node)
 }
