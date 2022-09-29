@@ -3,13 +3,18 @@ package d7024e
 import (
 	"fmt"
 	"encoding/json"
+	"encoding/hex"
+	"crypto/sha1"
 	"net"
 	"strconv"
 	"time"
 )
 
 type Network struct {
+	//Data []byte		// det finn en map funktion inbuggd i go som probs skulle vara bäst
+	Data map[string]string
 }
+
 
 type Protocol struct {
 	Rpc string 			// PING, STORE, FIND_NODE, FIND_VALUE 
@@ -20,7 +25,9 @@ type Protocol struct {
    }
 
 func NewNetwork() *Network {
-	return &Network{}
+	n:= &Network{}
+	n.Data = make(map[string]string)
+	return n
 }
 
 func (network *Network) Listen(ip string, port int, node *Kademlia) {
@@ -81,7 +88,7 @@ func (network *Network) HandleConn(conn *net.UDPConn, node *Kademlia){
 	case "PING":
 		response = network.handlePingMessage(proto, node)
 	case "STORE":
-		fmt.Println("STORE")
+		response = network.handleStoreMessage(proto, node)
 	case "FIND_NODE":
 		response = network.handleFindContactMessage(proto, node)
 	case "FIND_VALUE":
@@ -172,9 +179,43 @@ func (network *Network) SendFindDataMessage(hash string) {
 
 
 // STORE
-func (network *Network) SendStoreMessage(data []byte) {
-	// TODO
+// verkar typ funka men är inte 100%
+func (network *Network) SendStoreMessage(contact *Contact, data []byte, node *Kademlia) {
+
+	conn, err := net.Dial("udp4", contact.Address)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	originNode := make([]Contact, 0)
+	originNode = append(originNode, node.routing.me)
+
+
+	msg := node.network.createStoreMessage(originNode, data)
+	conn.Write(msg)
+	//time.Sleep(5 * time.Second)
+
+	//buf := make([]byte, 1024)
+	
+	//rlen, err := conn.Read(buf)
+
+	//if err != nil {
+	//	fmt.Println(err)
+	//}
+	//message := buf[:rlen]
+
+
+	//var proto Protocol
+
+	//err = json.Unmarshal(message, &proto)
+	//if err != nil {
+	//	fmt.Println(err)
+	//}
+
+	//node.routing.AddContact(proto.Contacts[0])
 }
+
+
 
 
 // Handles a recieved PING protocol
@@ -198,8 +239,21 @@ func(network *Network) handleFindDataMessage() []byte {
 	return make([]byte, 1024)
 }
 
-func(network *Network) handleStoreMessage() []byte {
-	return make([]byte, 1024)
+func(network *Network) handleStoreMessage(proto Protocol, node *Kademlia) []byte {
+
+	// Hash för att skapa nyckel
+	hashbytes := sha1.Sum(proto.Data)
+    hash := hex.EncodeToString(hashbytes[0:IDLength])
+
+	
+	//network. = proto.Data
+
+	fmt.Println(network.Data)
+	fmt.Println("")
+	network.Data[string(hash)] = string(proto.Data)
+	fmt.Println(network.Data[string(hash)])
+
+	return proto.Data
 }
 
 // Creates a byte array containing a PING protocol
@@ -219,8 +273,8 @@ func(network *Network) createFindDataMessage() []byte {
 	return make([]byte, 1024)
 }
 
-func(network *Network) createStoreMessage() []byte {
-	return make([]byte, 1024)
+func(network *Network) createStoreMessage(contacts []Contact, data []byte) []byte {
+	return CreateProtocol("STORE", contacts, "", data, "")
 }
 
 

@@ -36,20 +36,42 @@ func (kademlia *Kademlia) InitNode() {
 	network := NewNetwork()
 	node := NewKademlia(routing, network)
 
+
+
+
+
+
+	
 	go network.Listen(ip, port, node)
 	time.Sleep(5 * time.Second)
-	// fmt.Println(network, defaultCon)
+	 fmt.Println(network, defaultCon)
 
-	// Add node to network
+	 //Add node to network
 	node.routing.AddContact(defaultCon)
-	// network.SendFindContactMessage(&defaultCon, nodeID, node)
-	// fmt.Println("Contacts: ", node.routing.buckets[159].Len())
+	 network.SendFindContactMessage(&defaultCon, nodeID, node)
+	 fmt.Println("Contacts: ", node.routing.buckets[159].Len())
 	node.LookupContact(&node.routing.me)
 
+
+
+	
+	fmt.Println("start")
+	
+	fmt.Println(network.Data)
+	network.SendStoreMessage(&defaultCon, []byte("AAAAA"), node)
+	//network.handleStoreMessage(network.createStoreMessage(defaultCon, c), node)
+	fmt.Println(network.Data)
+	network.SendStoreMessage(&defaultCon, []byte("123456789"), node)
+	fmt.Println(network.Data)
+	
+	fmt.Println("end")
+
+	/*
 	// go update()
 	for {
 
 	}
+	*/
 }
 
 func update() {
@@ -136,8 +158,9 @@ func (kademlia *Kademlia) LookupData(hash string) {
 }
 
 func (kademlia *Kademlia) Store(data []byte) {
-	// TODO
+	
 }
+
 
 // Get preferred outbound ip of this machine
 // Taken from https://stackoverflow.com/questions/23558425/how-do-i-get-the-local-ip-address-in-go
