@@ -5,17 +5,21 @@ import (
 	"log"
 	"os"
 
+	// "string"
+
 	// "strconv
 
 	// "github.com/SimonBerghem/mobile-distributed-system/d7024e"
 	"github.com/urfave/cli"
 )
 
+var app = cli.NewApp()
+
 func InitCLI() {
-	app := cli.NewApp()
+	// app := cli.NewApp()
 	app.Name = "kademlia_cli"
 	app.Usage = "A CLI for running Kademlia commands"
-	app.Author = "Caspesr Lundberg, Simon Malmström Berghem & Emil Wiklander"
+	app.Author = "Casper Lundberg, Simon Malmström Berghem & Emil Wiklander"
 	app.Version = "0.0.0"
 	app.Commands = []cli.Command{
 		{
