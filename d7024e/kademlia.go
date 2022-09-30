@@ -20,58 +20,51 @@ const alpha = 3
 func (kademlia *Kademlia) InitNode() {
 	defaultIP := "172.20.0.2"
 	port := 4000
-	defaultCon := NewContact(NewRandomKademliaID(), defaultIP+":"+strconv.Itoa(port))
+	defaultCon := NewContact(NewKademliaID("7bcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde"), defaultIP+":"+strconv.Itoa(port))
 
 	ip := GetOutboundIP()
+
+	var con Contact
 
 	if defaultIP != ip {
 		rand.Seed(time.Now().UnixNano())
 		port = rand.Intn(65535-1000) + 1000
+		nodeID := NewRandomKademliaID()
+		con = NewContact(nodeID, ip+":"+strconv.Itoa(port))
+	} else {
+		con = defaultCon
 	}
 
 	// Create node
-	nodeID := NewRandomKademliaID()
-	me := NewContact(nodeID, ip+":"+strconv.Itoa(port))
-	routing := NewRoutingTable(me)
+	routing := NewRoutingTable(con)
 	network := NewNetwork()
 	node := NewKademlia(routing, network)
-
-
-
-
-
-
 	
 	go network.Listen(ip, port, node)
 	time.Sleep(5 * time.Second)
-	 fmt.Println(network, defaultCon)
-
+	// fmt.Println(network, defaultCon)
+	contactedGateway := false
+	if defaultIP != ip {
+		contactedGateway = node.network.SendPingMessage(&defaultCon, node)
+	}
 	 //Add node to network
-	node.routing.AddContact(defaultCon)
-	 network.SendFindContactMessage(&defaultCon, nodeID, node)
-	 fmt.Println("Contacts: ", node.routing.buckets[159].Len())
-	node.LookupContact(&node.routing.me)
+	// node.routing.AddContact(defaultCon)
+	// network.SendFindContactMessage(&defaultCon, nodeID, node)
+	// fmt.Println("Contacts: ", node.routing.buckets[159].Len())
+	if contactedGateway {
+		node.LookupContact(&node.routing.me)
+	}
 
 
 
-	
-	fmt.Println("start")
-	
-	fmt.Println(network.Data)
 	network.SendStoreMessage(&defaultCon, []byte("AAAAA"), node)
 	//network.handleStoreMessage(network.createStoreMessage(defaultCon, c), node)
-	fmt.Println(network.Data)
 	network.SendStoreMessage(&defaultCon, []byte("123456789"), node)
-	fmt.Println(network.Data)
-	
-	fmt.Println("end")
 
-	/*
 	// go update()
 	for {
 
 	}
-	*/
 }
 
 func update() {
@@ -88,22 +81,24 @@ func (kademlia *Kademlia) LookupContact(target *Contact) []Contact {
 	var candidates ContactCandidates
 
 	// Pick alpha closest nodes from it knows
-	queryList := kademlia.routing.FindClosestContacts(kademlia.routing.me.ID, alpha)
+	queryList := kademlia.routing.FindClosestContacts(target.ID, alpha)
+	// fmt.Println("INIT QUERY: ", queryList)
 	currentClosest := queryList[0].ID
-
-	fmt.Println("LEN: ", len(queryList))
 
 	for len(queryList) < 1 {}
 
 	for seen.Len() < bucketSize {
+		fmt.Println(seen.Len())
 		if len(queryList) == 0 {
 			fmt.Println("BREAK")
 			break
 		}
 
 		for i := 0; i < 3 && i < len(queryList); i++ {
-			fmt.Println("QUERY: ", queryList)
-			candidates.Append(kademlia.lookupContactHelper(seen, currentClosest, target.ID, &queryList[i]))
+			// fmt.Println("QUERY: ", queryList[i])
+			test := kademlia.lookupContactHelper(seen, currentClosest, target.ID, queryList[i])
+			// fmt.Println("LOOKUP RESULT: ", test)
+			candidates.Append(test)
 		}
 
 		// Remove queried and add to seen
@@ -131,12 +126,13 @@ func (kademlia *Kademlia) LookupContact(target *Contact) []Contact {
 	return seen.contacts
 }
 
-func (kademlia *Kademlia) lookupContactHelper(seen ContactCandidates, currentClosest *KademliaID, target *KademliaID, contact *Contact) []Contact {
-	fmt.Println("ARGS: ", contact, " ", target)
+func (kademlia *Kademlia) lookupContactHelper(seen ContactCandidates, currentClosest *KademliaID, target *KademliaID, contact Contact) []Contact {
+	// fmt.Println("ARGS: ", contact, " ", target)
 	candidates := kademlia.network.SendFindContactMessage(contact, target, kademlia)
-	fmt.Println("CANDIDATES: ", candidates)
+	// fmt.Println("CANDIDATES: ", candidates)
 	if len(candidates) > 0 && candidates[0].ID.Less(currentClosest){
 		fmt.Println("FOUND CLOSER CANDIDATES")
+		// fmt.Println("ME: ", kademlia.routing.me)
 		return candidates
 	} else {
 		fmt.Println("NO CLOSER CANDIDATES")
