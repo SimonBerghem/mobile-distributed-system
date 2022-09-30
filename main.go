@@ -1,14 +1,17 @@
 package main
 
 import (
+	"io"
+	"os"
+
+	"github.com/SimonBerghem/mobile-distributed-system/cmd"
 	"github.com/SimonBerghem/mobile-distributed-system/d7024e"
-	// "github.com/SimonBerghem/mobile-distributed-system/kademlia_cli"
 )
 
+var output io.Writer = os.Stdout
+
 func main() {
-	// kademlia_cli.InitCLI()
 	node := d7024e.Kademlia{}
 	node.InitNode()
-
-	// kademlia_cli.PingTest()
+	cmd.InitCLI(output, node)
 }
