@@ -1,37 +1,30 @@
 package d7024e
 
 import (
-	"fmt"
 	"encoding/json"
-	"encoding/hex"
-	"crypto/sha1"
+	"fmt"
 	"net"
 	"strconv"
 	"time"
 )
 
 type Network struct {
-	//Data []byte		// det finn en map funktion inbuggd i go som probs skulle vara bäst
-	Data map[string]string
 }
-
 
 type Protocol struct {
 	Rpc string 			// PING, STORE, FIND_NODE, FIND_VALUE 
 	Contacts []Contact 	
-	Hash string 		
 	Data []byte 		
-	Message string 		
-   }
+	Sender Contact
+	Target Contact
+}
 
 func NewNetwork() *Network {
-	n:= &Network{}
-	n.Data = make(map[string]string)
-	return n
+	return &Network{}
 }
 
 func (network *Network) Listen(ip string, port int, node *Kademlia) {
-	
+
 	addrStr := ip + ":" + strconv.Itoa(port)
 
 	// udp4 only allows IPV4 addresses
@@ -53,19 +46,19 @@ func (network *Network) Listen(ip string, port int, node *Kademlia) {
 
 	// i := 0
 	for {
-	// if network.node.routing.me.Address == "172.20.0.2"{
-	// 	time.Sleep(20 * time.Second)
-	// }
-	// 		fmt.Println("Looping: ", i)
-	// 		i = i + 1 
-	// 	}
-	// defer conn.Close()
+		// if network.node.routing.me.Address == "172.20.0.2"{
+		// 	time.Sleep(20 * time.Second)
+		// }
+		// 		fmt.Println("Looping: ", i)
+		// 		i = i + 1
+		// 	}
+		// defer conn.Close()
 		network.HandleConn(conn, node)
 	}
 }
 
 // Check which message has been recevied and handle it accordingly
-func (network *Network) HandleConn(conn *net.UDPConn, node *Kademlia){
+func (network *Network) HandleConn(conn *net.UDPConn, node *Kademlia) {
 	buf := make([]byte, 1024)
 	rlen, addr, err := conn.ReadFromUDP(buf)
 	if err != nil {
@@ -76,12 +69,11 @@ func (network *Network) HandleConn(conn *net.UDPConn, node *Kademlia){
 
 	var proto Protocol
 	var response []byte
-	
+
 	if err := json.Unmarshal(values, &proto); err != nil {
 		fmt.Println(err)
 		panic(err)
 	}
-	// fmt.Println("HMMM: ", proto.Contacts)
 
 	switch rpc := proto.Rpc; rpc {
 
@@ -94,7 +86,7 @@ func (network *Network) HandleConn(conn *net.UDPConn, node *Kademlia){
 	case "FIND_VALUE":
 		fmt.Println("FIND_VALUE")
 	default:
-		fmt.Println("Unknown RPC")
+		fmt.Println("Unknown RPC: ", rpc)
 	}
 
 	time.Sleep(5 * time.Second)
@@ -105,15 +97,16 @@ func (network *Network) HandleConn(conn *net.UDPConn, node *Kademlia){
 }
 
 // PING
-func (network *Network) SendPingMessage(contact *Contact, node *Kademlia) {
+func (network *Network) SendPingMessage(contact *Contact, node *Kademlia) bool {
 
 	conn, err := net.Dial("udp4", contact.Address)
 	if err != nil {
 		fmt.Println(err)
 		// panic(err)
+		return false
 	}
 
-	msg := network.createPingMessage(node)
+	msg := network.createPingMessage(*contact, node)
 	conn.Write(msg)
 	time.Sleep(5 * time.Second)
 
@@ -122,6 +115,7 @@ func (network *Network) SendPingMessage(contact *Contact, node *Kademlia) {
 	if err != nil {
 		fmt.Println(err)
 		// panic(err)
+		return false
 	}
 	message := buf[:rlen]
 
@@ -131,26 +125,29 @@ func (network *Network) SendPingMessage(contact *Contact, node *Kademlia) {
 	if err != nil {
 		fmt.Println(err)
 		// panic(err)
+		return false
 	}
 
-	node.routing.AddContact(proto.Contacts[0])
+	node.routing.AddContact(proto.Sender)
+	return true
 }
 
 // FIND_NODE
 func (network *Network) SendFindContactMessage(contact *Contact, target *KademliaID, node *Kademlia) []Contact {
-	
+
 	conn, err := net.Dial("udp4", contact.Address)
 	if err != nil {
 		fmt.Println(err)
 		// panic(err)
 	}
-	originNode := make([]Contact, 0)
-	originNode = append(originNode, node.routing.me)
 
-	msg := network.createFindContactMessage(target, originNode)
+	msg := network.createFindContactMessage(*contact, target, nil, node)
 	conn.Write(msg)
 
-	buf := make([]byte, 1024)
+	buf := make([]byte, 8192)
+
+	time.Sleep(5 * time.Second)
+
 	rlen, err := conn.Read(buf)
 	if err != nil {
 		fmt.Println(err)
@@ -159,15 +156,17 @@ func (network *Network) SendFindContactMessage(contact *Contact, target *Kademli
 	message := buf[:rlen]
 	var proto Protocol
 
+	// fmt.Println("MSG: ", string(message))
+
 	err = json.Unmarshal(message, &proto)
 	if err != nil {
 		fmt.Println(err)
 		// panic(err)
 	}
 
-	network.addContacts(proto.Contacts, node)
-	if len(proto.Contacts) > 0{
-		node.routing.AddContact(proto.Contacts[0])
+	// network.addContacts(proto.Contacts, node)
+	if len(proto.Contacts) > 0 {
+		node.routing.AddContact(proto.Sender)
 	}
 	return proto.Contacts
 }
@@ -177,9 +176,7 @@ func (network *Network) SendFindDataMessage(hash string) {
 	// TODO
 }
 
-
 // STORE
-// verkar typ funka men är inte 100%
 func (network *Network) SendStoreMessage(contact *Contact, data []byte, node *Kademlia) {
 
 	conn, err := net.Dial("udp4", contact.Address)
@@ -191,115 +188,100 @@ func (network *Network) SendStoreMessage(contact *Contact, data []byte, node *Ka
 	originNode = append(originNode, node.routing.me)
 
 
-	msg := node.network.createStoreMessage(originNode, data)
+	msg := node.network.createStoreMessage(originNode, data, *contact, node)
 	conn.Write(msg)
-	//time.Sleep(5 * time.Second)
 
-	//buf := make([]byte, 1024)
-	
-	//rlen, err := conn.Read(buf)
+	buf := make([]byte, 1024)
+	rlen, err := conn.Read(buf)
 
-	//if err != nil {
-	//	fmt.Println(err)
-	//}
-	//message := buf[:rlen]
+	if err != nil {
+		fmt.Println(err)
+		// panic(err)
+	}
 
+	message := buf[:rlen]
+	var proto Protocol
 
-	//var proto Protocol
+	err = json.Unmarshal(message, &proto)
+	if err != nil {
+		fmt.Println(err)
+		// panic(err)
+	}
 
-	//err = json.Unmarshal(message, &proto)
-	//if err != nil {
-	//	fmt.Println(err)
-	//}
-
-	//node.routing.AddContact(proto.Contacts[0])
 }
-
-
-
 
 // Handles a recieved PING protocol
 func (network *Network) handlePingMessage(proto Protocol, node *Kademlia) []byte {
 	// Add to routing
-	network.addContacts(proto.Contacts, node)
+	// network.addContacts(proto.Contacts, node)
+	node.routing.AddContact(proto.Sender)
 
 	// Send back message with my ip 
-	return network.createPingMessage(node)
+	return network.createPingMessage(proto.Target, node)
 }
 
 func (network *Network) handleFindContactMessage(proto Protocol, node *Kademlia) []byte {
 
-	network.addContacts(proto.Contacts, node)
-	target := NewKademliaID(string(proto.Data))
-	contacts := node.routing.FindClosestContacts(target, bucketSize)
-	return network.createFindContactMessage(target, contacts)
+	// network.addContacts(proto.Contacts, node)
+	node.routing.AddContact(proto.Sender)
+	// target := NewKademliaID(proto.target)
+	contacts := node.routing.FindClosestContacts(proto.Target.ID, bucketSize)
+	return network.createFindContactMessage(proto.Target, NewKademliaID(string(proto.Data)), contacts, node)
 }
 
-func(network *Network) handleFindDataMessage() []byte {
+func (network *Network) handleFindDataMessage() []byte {
 	return make([]byte, 1024)
 }
 
-func(network *Network) handleStoreMessage(proto Protocol, node *Kademlia) []byte {
+func (network *Network) handleStoreMessage(proto Protocol, node *Kademlia) []byte {
+	/*
+		network.addContacts(proto.Contacts, node)
+		target := NewKademliaID(string(proto.Data))
+		contacts := node.routing.FindClosestContacts(target, bucketSize)
+	*/
+	node.Store(proto.Data)
 
-	// Hash för att skapa nyckel
-	hashbytes := sha1.Sum(proto.Data)
-    hash := hex.EncodeToString(hashbytes[0:IDLength])
-
-	
-	//network. = proto.Data
-
-	fmt.Println(network.Data)
-	fmt.Println("")
-	network.Data[string(hash)] = string(proto.Data)
-	fmt.Println(network.Data[string(hash)])
-
-	return proto.Data
+	return make([]byte, 1024)
 }
 
 // Creates a byte array containing a PING protocol
-func (network *Network) createPingMessage(node *Kademlia) []byte {
-	originNode := make([]Contact, 0)
-	originNode = append(originNode, node.routing.me)
-	return CreateProtocol("PING", originNode, "", nil, "")
+func (network *Network) createPingMessage(target Contact, node *Kademlia) []byte {
+	return CreateProtocol("PING", nil, nil, node.routing.me, target)
 }
 
 // Creates a byte array containing a FIND_NODE protocol
-func (network *Network) createFindContactMessage(target *KademliaID, contacts []Contact) []byte {
-	return CreateProtocol("FIND_NODE", contacts, "", []byte(target.String()), "")
+func (network *Network) createFindContactMessage(contact Contact, target *KademliaID, contacts []Contact, node *Kademlia) []byte {
+	return CreateProtocol("FIND_NODE", contacts, []byte(target.String()), node.routing.me, contact)
 	
 }
 
-func(network *Network) createFindDataMessage() []byte {
+func (network *Network) createFindDataMessage() []byte {
 	return make([]byte, 1024)
 }
 
-func(network *Network) createStoreMessage(contacts []Contact, data []byte) []byte {
-	return CreateProtocol("STORE", contacts, "", data, "")
+func(network *Network) createStoreMessage(contacts []Contact, data []byte, target Contact, node *Kademlia) []byte {
+	return CreateProtocol("STORE", contacts, data, node.routing.me, target)
 }
 
-
-func (network *Network) addContacts (contacts []Contact, node *Kademlia) {
-	for _, con := range contacts{
+func (network *Network) addContacts(contacts []Contact, node *Kademlia) {
+	for _, con := range contacts {
 		node.routing.AddContact(con)
 	}
 }
 
-func CreateProtocol(rpc string, contacts []Contact, hash string, data []byte, msg string) []byte{
+func CreateProtocol(rpc string, contacts []Contact, data []byte, sender Contact, target Contact) []byte{
 	protocol, err := 
 		json.Marshal( 
 			&Protocol{
-				Rpc: rpc,
+				Rpc:      rpc,
 				Contacts: contacts,
-				Hash: hash,
 				Data: data,
-				Message: msg})
+				Sender: sender,
+				Target: target})
 
-	if err != nil{
+	if err != nil {
 		fmt.Println(err)
 		return nil
 	}
-
 	return protocol
 }
-
-
