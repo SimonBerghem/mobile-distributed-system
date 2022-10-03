@@ -36,46 +36,38 @@ func (kademlia *Kademlia) InitNode() {
 	network := NewNetwork()
 	node := NewKademlia(routing, network)
 
-
-
-
-
-
-	
 	go network.Listen(ip, port, node)
 	time.Sleep(5 * time.Second)
-	 fmt.Println(network, defaultCon)
+	fmt.Println(network, defaultCon)
 
-	 //Add node to network
+	//Add node to network
 	node.routing.AddContact(defaultCon)
-	 network.SendFindContactMessage(&defaultCon, nodeID, node)
-	 fmt.Println("Contacts: ", node.routing.buckets[159].Len())
+	network.SendFindContactMessage(&defaultCon, nodeID, node)
+	fmt.Println("Contacts: ", node.routing.buckets[159].Len())
 	node.LookupContact(&node.routing.me)
 
-
-
-	
 	fmt.Println("start")
-	
+
 	fmt.Println(network.Data)
 	network.SendStoreMessage(&defaultCon, []byte("AAAAA"), node)
 	//network.handleStoreMessage(network.createStoreMessage(defaultCon, c), node)
 	fmt.Println(network.Data)
 	network.SendStoreMessage(&defaultCon, []byte("123456789"), node)
 	fmt.Println(network.Data)
-	
+
 	fmt.Println("end")
 
 	/*
-	// go update()
-	for {
+		// go update()
+		for {
 
-	}
+		}
 	*/
 }
 
 func update() {
-	for{}
+	for {
+	}
 }
 
 func NewKademlia(table *RoutingTable, network *Network) *Kademlia {
@@ -93,7 +85,8 @@ func (kademlia *Kademlia) LookupContact(target *Contact) []Contact {
 
 	fmt.Println("LEN: ", len(queryList))
 
-	for len(queryList) < 1 {}
+	for len(queryList) < 1 {
+	}
 
 	for seen.Len() < bucketSize {
 		if len(queryList) == 0 {
@@ -107,7 +100,7 @@ func (kademlia *Kademlia) LookupContact(target *Contact) []Contact {
 		}
 
 		// Remove queried and add to seen
-		if len(queryList) - 1 < 3 {
+		if len(queryList)-1 < 3 {
 			seen.Append(queryList)
 			queryList = queryList[:0]
 		} else {
@@ -115,12 +108,12 @@ func (kademlia *Kademlia) LookupContact(target *Contact) []Contact {
 			queryList = queryList[2:]
 		}
 
-		// Set new closest and 
+		// Set new closest and
 		if candidates.Len() > 0 {
 			candidates.Sort()
 			currentClosest = candidates.contacts[0].ID
 			for _, candidate := range candidates.contacts {
-				if !contains(seen.contacts, candidate) && !contains(queryList, candidate){
+				if !contains(seen.contacts, candidate) && !contains(queryList, candidate) {
 					queryList = append(queryList, candidate)
 				}
 			}
@@ -135,7 +128,7 @@ func (kademlia *Kademlia) lookupContactHelper(seen ContactCandidates, currentClo
 	fmt.Println("ARGS: ", contact, " ", target)
 	candidates := kademlia.network.SendFindContactMessage(contact, target, kademlia)
 	fmt.Println("CANDIDATES: ", candidates)
-	if len(candidates) > 0 && candidates[0].ID.Less(currentClosest){
+	if len(candidates) > 0 && candidates[0].ID.Less(currentClosest) {
 		fmt.Println("FOUND CLOSER CANDIDATES")
 		return candidates
 	} else {
@@ -153,14 +146,13 @@ func contains(list []Contact, target Contact) bool {
 	return false
 }
 
-func (kademlia *Kademlia) LookupData(hash string) {
-	// TODO
+func (kademlia *Kademlia) LookupData(hash string) string {
+	return "'value'"
 }
 
-func (kademlia *Kademlia) Store(data []byte) {
-	
+func (kademlia *Kademlia) Store(data []byte) string {
+	return "'hashed'"
 }
-
 
 // Get preferred outbound ip of this machine
 // Taken from https://stackoverflow.com/questions/23558425/how-do-i-get-the-local-ip-address-in-go

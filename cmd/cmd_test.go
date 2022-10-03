@@ -15,29 +15,43 @@ var out io.Writer = os.Stdout
 func runCommandTester(line string) string {
 	out = bytes.NewBuffer(nil)
 
-	inputList := strings.Split(line, " ")
-	command := inputList[0]
-	inputList = inputList[1:]
-	runCommand(out, nil, command, inputList)
+	command, args := inputSplit(line)
+	runCommand(out, nil, command, args)
 
 	str := out.(*bytes.Buffer).String()
 	return strings.TrimSuffix(str, "\n")
 }
 
-func TestPut(t *testing.T) {
+func TestPutNoArg(t *testing.T) {
 	assert.Equal(t, invalidArgs, runCommandTester("put"))
 }
 
-func TestPutAlias(t *testing.T) {
+func TestPutNoArgAlias(t *testing.T) {
 	assert.Equal(t, invalidArgs, runCommandTester("p"))
 }
 
-func TestGet(t *testing.T) {
+func TestPutArg(t *testing.T) {
+	assert.Equal(t, "'hashed'", runCommandTester("put file"))
+}
+
+func TestPutArgAlias(t *testing.T) {
+	assert.Equal(t, "'hashed'", runCommandTester("p file"))
+}
+
+func TestGetNoArg(t *testing.T) {
 	assert.Equal(t, invalidArgs, runCommandTester("get"))
 }
 
-func TestGetAlias(t *testing.T) {
+func TestGetNoArgAlias(t *testing.T) {
 	assert.Equal(t, invalidArgs, runCommandTester("g"))
+}
+
+func TestGetArg(t *testing.T) {
+	assert.Equal(t, "'value'", runCommandTester("get hash"))
+}
+
+func TestGetArgAlias(t *testing.T) {
+	assert.Equal(t, "'value'", runCommandTester("g hash"))
 }
 
 func TestExit(t *testing.T) {
