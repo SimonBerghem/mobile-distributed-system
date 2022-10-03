@@ -30,13 +30,13 @@ func TestPutNoArgAlias(t *testing.T) {
 	assert.Equal(t, invalidArgs, runCommandTester("p"))
 }
 
-func TestPutArg(t *testing.T) {
-	assert.Equal(t, "'hashed'", runCommandTester("put file"))
-}
+// func TestPutArg(t *testing.T) {
+// 	assert.Equal(t, "'hashed'", runCommandTester("put file"))
+// }
 
-func TestPutArgAlias(t *testing.T) {
-	assert.Equal(t, "'hashed'", runCommandTester("p file"))
-}
+// func TestPutArgAlias(t *testing.T) {
+// 	assert.Equal(t, "'hashed'", runCommandTester("p file"))
+// }
 
 func TestGetNoArg(t *testing.T) {
 	assert.Equal(t, invalidArgs, runCommandTester("get"))
@@ -46,13 +46,13 @@ func TestGetNoArgAlias(t *testing.T) {
 	assert.Equal(t, invalidArgs, runCommandTester("g"))
 }
 
-func TestGetArg(t *testing.T) {
-	assert.Equal(t, "'value'", runCommandTester("get hash"))
-}
+// func TestGetArg(t *testing.T) {
+// 	assert.Equal(t, "'value'", runCommandTester("get hash"))
+// }
 
-func TestGetArgAlias(t *testing.T) {
-	assert.Equal(t, "'value'", runCommandTester("g hash"))
-}
+// func TestGetArgAlias(t *testing.T) {
+// 	assert.Equal(t, "'value'", runCommandTester("g hash"))
+// }
 
 func TestExit(t *testing.T) {
 	// assert.NotNil(t, runCommandTester("exit"))

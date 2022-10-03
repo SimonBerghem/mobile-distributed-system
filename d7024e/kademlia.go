@@ -170,8 +170,10 @@ func (kademlia *Kademlia) LookupData(hash string) []byte {
 	return kademlia.data[hash]
 }
 
-func (kademlia *Kademlia) Store(data []byte) {
-	kademlia.data[hash(data)] = data
+func (kademlia *Kademlia) Store(data []byte) string {
+	hash := hash(data)
+	kademlia.data[hash] = data
+	return hash
 }
 
 func hash(data []byte) string {
