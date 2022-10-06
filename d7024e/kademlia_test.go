@@ -46,7 +46,7 @@ func TestStore(t *testing.T) {
 	node := NewKademlia(routing, network)
 	data := []byte("testdata")
 	hash := node.Store(data)
-	assert.Equal(t, Hash(data), hash)
+	assert.Equal(t, NewKademliaID(string(data)), hash)
 }
 
 func TestLookupData(t *testing.T) {

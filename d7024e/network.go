@@ -109,7 +109,7 @@ func (network *Network) SendPingMessage(contact *Contact, node *Kademlia) bool {
 
 	msg := network.createPingMessage(*contact, node)
 	conn.Write(msg)
-	time.Sleep(5 * time.Second)
+	// time.Sleep(5 * time.Second)
 
 	buf := make([]byte, 1024)
 	rlen, err := conn.Read(buf)
@@ -141,13 +141,14 @@ func (network *Network) SendFindContactMessage(contact *Contact, target *Kademli
 		fmt.Println(err)
 		// panic(err)
 	}
+	defer conn.Close()
 
 	msg := network.createFindContactMessage(*contact, target, nil, node)
 	conn.Write(msg)
 
 	buf := make([]byte, 8192)
 
-	// conn.SetReadDeadline(time.Now().Add(5 * time.Second))
+	// conn.SetReadDeadline(time.Now().Add(4 * time.Second))
 
 	rlen, err := conn.Read(buf)
 	if err != nil {
@@ -157,18 +158,13 @@ func (network *Network) SendFindContactMessage(contact *Contact, target *Kademli
 	message := buf[:rlen]
 	var proto Protocol
 
-	// fmt.Println("MSG: ", string(message))
-
 	err = json.Unmarshal(message, &proto)
 	if err != nil {
 		fmt.Println(err)
 		// panic(err)
 	}
 
-	// network.addContacts(proto.Contacts, node)
-	if len(proto.Contacts) > 0 {
-		node.routing.AddContact(proto.Sender)
-	}
+	node.routing.AddContact(proto.Sender)
 	return proto.Contacts
 }
 
@@ -187,7 +183,6 @@ func (network *Network) SendStoreMessage(contact *Contact, data []byte, node *Ka
 
 	originNode := make([]Contact, 0)
 	originNode = append(originNode, node.routing.me)
-
 
 	msg := node.network.createStoreMessage(originNode, data, *contact, node)
 	conn.Write(msg)
@@ -209,23 +204,17 @@ func (network *Network) SendStoreMessage(contact *Contact, data []byte, node *Ka
 		// panic(err)
 	}
 
+	node.routing.AddContact(proto.Sender)
 }
 
 // Handles a recieved PING protocol
 func (network *Network) handlePingMessage(proto Protocol, node *Kademlia) []byte {
-	// Add to routing
-	// network.addContacts(proto.Contacts, node)
 	node.routing.AddContact(proto.Sender)
-
-	// Send back message with my ip 
 	return network.createPingMessage(proto.Target, node)
 }
 
 func (network *Network) handleFindContactMessage(proto Protocol, node *Kademlia) []byte {
-
-	// network.addContacts(proto.Contacts, node)
 	node.routing.AddContact(proto.Sender)
-	// target := NewKademliaID(proto.target)
 	contacts := node.routing.FindClosestContacts(proto.Target.ID, bucketSize)
 	return network.createFindContactMessage(proto.Target, NewKademliaID(string(proto.Data)), contacts, node)
 }
@@ -235,14 +224,9 @@ func (network *Network) handleFindDataMessage() []byte {
 }
 
 func (network *Network) handleStoreMessage(proto Protocol, node *Kademlia) []byte {
-	/*
-		network.addContacts(proto.Contacts, node)
-		target := NewKademliaID(string(proto.Data))
-		contacts := node.routing.FindClosestContacts(target, bucketSize)
-	*/
-	node.Store(proto.Data)
-
-	return make([]byte, 1024)
+	node.routing.AddContact(proto.Sender)
+	node.StoreValue(proto.Data)
+	return network.createStoreMessage(proto.Contacts, proto.Data, proto.Sender, node)
 }
 
 // Creates a byte array containing a PING protocol

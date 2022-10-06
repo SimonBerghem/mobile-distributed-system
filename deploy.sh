@@ -4,5 +4,5 @@
 #docker stack rm nodes
 docker build . -t kadlab
 # docker stack deploy nodes --compose-file docker-compose.yml
-COMPOSE_HTTP_TIMEOUT=200 docker-compose --compatibility up -d
+COMPOSE_HTTP_TIMEOUT=200 docker-compose --compatibility up
 docker ps
