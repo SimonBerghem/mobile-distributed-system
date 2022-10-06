@@ -43,7 +43,7 @@ func (kademlia *Kademlia) InitNode() {
 	routing := NewRoutingTable(con)
 	network := NewNetwork()
 	node := NewKademlia(routing, network)
-	
+
 	go network.Listen(ip, port, node)
 
 
@@ -61,7 +61,7 @@ func (kademlia *Kademlia) InitNode() {
 
 	fmt.Printf("\n\nEmpty map\n%s\n", node.data)
 	d1 := []byte("AAAAA")
-	fmt.Printf("Adding %s with hash: %s\n", d1, hash(d1))
+	fmt.Printf("Adding %s with hash: %s\n", d1, Hash(d1))
 	network.SendStoreMessage(&con, d1, node)
 
 	fmt.Printf("%s\n", node.data)
@@ -79,7 +79,8 @@ func (kademlia *Kademlia) InitNode() {
 }
 
 func update() {
-	for{}
+	for {
+	}
 }
 
 func NewKademlia(table *RoutingTable, network *Network) *Kademlia {
@@ -142,11 +143,13 @@ func (kademlia *Kademlia) LookupData(hash string) []byte {
 	return kademlia.data[hash]
 }
 
-func (kademlia *Kademlia) Store(data []byte) {
-	kademlia.data[hash(data)] = data
+func (kademlia *Kademlia) Store(data []byte) string {
+	hash := Hash(data)
+	kademlia.data[hash] = data
+	return hash
 }
 
-func hash(data []byte) string {
+func Hash(data []byte) string {
 	hashbytes := sha1.Sum(data)
 	return hex.EncodeToString(hashbytes[0:IDLength])
 }

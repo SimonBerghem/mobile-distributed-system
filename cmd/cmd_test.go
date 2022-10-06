@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"io"
 	"os"
+	"strconv"
 	"strings"
 	"testing"
 
+	"github.com/SimonBerghem/mobile-distributed-system/d7024e"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -15,30 +17,54 @@ var out io.Writer = os.Stdout
 func runCommandTester(line string) string {
 	out = bytes.NewBuffer(nil)
 
-	inputList := strings.Split(line, " ")
-	command := inputList[0]
-	inputList = inputList[1:]
-	runCommand(out, nil, command, inputList)
+	command, args := inputSplit(line)
+	runCommand(out, nil, command, args)
 
 	str := out.(*bytes.Buffer).String()
 	return strings.TrimSuffix(str, "\n")
 }
 
-func TestPut(t *testing.T) {
+func TestInitCLI(t *testing.T) {
+	defaultIP := "172.20.0.2"
+	port := 4000
+	defaultCon := d7024e.NewContact(d7024e.NewKademliaID("7bcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde"), defaultIP+":"+strconv.Itoa(port))
+	routing := d7024e.NewRoutingTable(defaultCon)
+	network := d7024e.NewNetwork()
+	node := d7024e.NewKademlia(routing, network)
+	InitCLI(out, *node)
+}
+
+func TestPutNoArg(t *testing.T) {
 	assert.Equal(t, invalidArgs, runCommandTester("put"))
 }
 
-func TestPutAlias(t *testing.T) {
+func TestPutNoArgAlias(t *testing.T) {
 	assert.Equal(t, invalidArgs, runCommandTester("p"))
 }
 
-func TestGet(t *testing.T) {
+// func TestPutArg(t *testing.T) {
+// 	assert.Equal(t, "'hashed'", runCommandTester("put file"))
+// }
+
+// func TestPutArgAlias(t *testing.T) {
+// 	assert.Equal(t, "'hashed'", runCommandTester("p file"))
+// }
+
+func TestGetNoArg(t *testing.T) {
 	assert.Equal(t, invalidArgs, runCommandTester("get"))
 }
 
-func TestGetAlias(t *testing.T) {
+func TestGetNoArgAlias(t *testing.T) {
 	assert.Equal(t, invalidArgs, runCommandTester("g"))
 }
+
+// func TestGetArg(t *testing.T) {
+// 	assert.Equal(t, "'value'", runCommandTester("get hash"))
+// }
+
+// func TestGetArgAlias(t *testing.T) {
+// 	assert.Equal(t, "'value'", runCommandTester("g hash"))
+// }
 
 func TestExit(t *testing.T) {
 	// assert.NotNil(t, runCommandTester("exit"))
