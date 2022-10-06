@@ -40,14 +40,15 @@ func (network *Network) Listen(ip string, port int, node *Kademlia) {
 		panic(err)
 	}
 
-	// defer conn.Close()
+	defer conn.Close()
 
 	fmt.Println("Listening on " + addrStr)
 
 	// i := 0
 	for {
-		// if network.node.routing.me.Address == "172.20.0.2"{
+		// if node.routing.me.Address == "172.20.0.2:4000"{
 		// 	time.Sleep(20 * time.Second)
+		// 	fmt.Println("CONN: ", conn)
 		// }
 		// 		fmt.Println("Looping: ", i)
 		// 		i = i + 1
@@ -146,7 +147,7 @@ func (network *Network) SendFindContactMessage(contact *Contact, target *Kademli
 
 	buf := make([]byte, 8192)
 
-	time.Sleep(5 * time.Second)
+	// conn.SetReadDeadline(time.Now().Add(5 * time.Second))
 
 	rlen, err := conn.Read(buf)
 	if err != nil {

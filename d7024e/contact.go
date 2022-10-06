@@ -45,10 +45,29 @@ func (candidates *ContactCandidates) Append(contacts []Contact) {
 	candidates.contacts = append(candidates.contacts, contacts...)
 }
 
+// Append an array of Contacts to the ContactCandidates without duplicates
+func (candidates *ContactCandidates) AppendNoDups(contacts []Contact){
+	for _, contact := range contacts {
+		if !contains(candidates.contacts, contact){
+			candidates.contacts = append(candidates.contacts, contact)
+		}
+	}
+}
+
 // GetContacts returns the first count number of Contacts
 func (candidates *ContactCandidates) GetContacts(count int) []Contact {
 	return candidates.contacts[:count]
 }
+
+// GetUpToContacts returns up to the count number of Contacts
+func (candidates *ContactCandidates) GetUpToContacts(count int) []Contact {
+	if count > candidates.Len() {
+		return candidates.contacts[:candidates.Len()]
+	} else {
+		return candidates.contacts[:count]
+	}
+}
+
 
 // Sort the Contacts in ContactCandidates
 func (candidates *ContactCandidates) Sort() {

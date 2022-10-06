@@ -32,6 +32,12 @@ func (routingTable *RoutingTable) AddContact(contact Contact) {
 	// fmt.Println("CURRENT LENGTH: ", bucket.Len(), " INDEX: ", bucketIndex, " ID: ", contact.ID)
 }
 
+func (routingTable *RoutingTable) AddContacts(contacts []Contact) {
+	for _, contact := range contacts {
+		routingTable.AddContact(contact)
+	}
+}
+
 // FindClosestContacts finds the count closest Contacts to the target in the RoutingTable
 func (routingTable *RoutingTable) FindClosestContacts(target *KademliaID, count int) []Contact {
 	var candidates ContactCandidates
