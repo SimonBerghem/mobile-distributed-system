@@ -20,3 +20,16 @@ func TestRoutingTable(t *testing.T) {
 		fmt.Println(contacts[i].String())
 	}
 }
+
+func TestAddContacts(t *testing.T) {
+	rt := NewRoutingTable(NewContact(NewKademliaID("FFFFFFFF00000000000000000000000000000000"), "localhost:8000"))
+
+	con1 := NewContact(NewKademliaID("FFFFFFFF00000000000000000000000000000000"), "localhost:8001")
+	con2 := NewContact(NewKademliaID("1111111100000000000000000000000000000000"), "localhost:8002")
+
+	conArr := make([]Contact, 2)
+	conArr[0] = con1
+	conArr[1] = con2
+
+	rt.AddContacts(conArr)
+}
