@@ -145,7 +145,68 @@ func Test_findUnqueriedNodes(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := findUnqueriedNodes(tt.args.closestNodes, tt.args.seenNodes, tt.args.count); !reflect.DeepEqual(got, tt.want) {
 				// t.Errorf("findUnqueriedNodes() = %v, want %v", got, tt.want)
+				print(got)
 			}
 		})
 	}
 }
+
+// func TestKademlia_LookupContacts(t *testing.T) {
+// 	defaultIP := "172.20.0.2"
+// 	port := 4000
+// 	kID := NewKademliaID("7bcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde")
+// 	defaultCon := NewContact(kID, defaultIP+":"+strconv.Itoa(port))
+// 	routing := NewRoutingTable(defaultCon)
+// 	network := NewNetwork()
+// 	node := NewKademlia(routing, network)
+
+// 	con1 := NewContact(NewKademliaID("FFFFFFFF00000000000000000000000000000000"), "localhost:8001")
+// 	con2 := NewContact(NewKademliaID("1111111100000000000000000000000000000000"), "localhost:8002")
+
+// 	conArr := make([]Contact, 2)
+// 	conArr[0] = con1
+// 	conArr[1] = con2
+
+// 	routing.AddContacts(conArr)
+
+// 	type fields struct {
+// 		routing *RoutingTable
+// 		network *Network
+// 		data    map[KademliaID][]byte
+// 	}
+// 	type args struct {
+// 		target *KademliaID
+// 	}
+// 	tests := []struct {
+// 		name   string
+// 		fields fields
+// 		args   args
+// 		want   []Contact
+// 	}{
+// 		// TODO: Add test cases.
+// 		{
+// 			name: "lookup contacts test",
+// 			fields: fields{
+// 				routing: routing,
+// 				network: network,
+// 				data:    node.data,
+// 			},
+// 			args: args{
+// 				target: NewKademliaID("1111111100000000000000000000000000000000"),
+// 			},
+// 			want: conArr,
+// 		},
+// 	}
+// 	for _, tt := range tests {
+// 		t.Run(tt.name, func(t *testing.T) {
+// 			kademlia := &Kademlia{
+// 				routing: tt.fields.routing,
+// 				network: tt.fields.network,
+// 				data:    tt.fields.data,
+// 			}
+// 			if got := kademlia.LookupContacts(tt.args.target); !reflect.DeepEqual(got, tt.want) {
+// 				t.Errorf("Kademlia.LookupContacts() = %v, want %v", got, tt.want)
+// 			}
+// 		})
+// 	}
+// }
