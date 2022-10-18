@@ -29,7 +29,6 @@ func (routingTable *RoutingTable) AddContact(contact Contact) {
 	bucketIndex := routingTable.getBucketIndex(contact.ID)
 	bucket := routingTable.buckets[bucketIndex]
 	bucket.AddContact(contact)
-	// fmt.Println("CURRENT LENGTH: ", bucket.Len(), " INDEX: ", bucketIndex, " ID: ", contact.ID)
 }
 
 func (routingTable *RoutingTable) AddContacts(contacts []Contact) {

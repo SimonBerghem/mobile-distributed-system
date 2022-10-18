@@ -3,13 +3,13 @@ package d7024e
 import (
 	"crypto/sha1"
 	"encoding/hex"
-	"fmt"
 	"log"
 	"math/rand"
 	"net"
 	"strconv"
 	"time"
 	"sync"
+	// "fmt"
 )
 
 // Stores routing table
@@ -46,50 +46,113 @@ func (kademlia *Kademlia) InitNode() {
 
 	go network.Listen(ip, port, node)
 
-	// fmt.Println(network, defaultCon)
 	contactedGateway := false
 
+	// Ping default node 
 	if defaultIP != ip {
 		node.routing.AddContact(defaultCon)
 		contactedGateway = node.network.SendPingMessage(&defaultCon, node)
 	}
 
-	 //Add node to network
+	// var nodes []Contact
+
+	// Connect to the rest of the network
 	if contactedGateway {
-		nodes := node.LookupContacts(node.routing.me.ID)
-		fmt.Println("Found ", len(nodes), " nodes!")
-		// fmt.Printf("\n\nEmpty map\n%s\n", node.data)
-		d1 := []byte("AAAAA")
-		// fmt.Printf("Adding %s with hash: %s\n", d1, Hash(d1))
-		network.SendStoreMessage(&con, d1, node)
-
-		fmt.Printf("%s\n", node.data)
-		fmt.Printf("Adding %s\n", []byte("123456789"))
-		network.SendStoreMessage(&con, []byte("123456789"), node)
-
-		network.SendStoreMessage(&defaultCon, []byte("AAAAA"), node)
-		//network.handleStoreMessage(network.createStoreMessage(defaultCon, c), node)
-		network.SendStoreMessage(&defaultCon, []byte("123456789"), node)
-
+		// nodes = node.LookupContacts(node.routing.me.ID)	
+		node.LookupContacts(node.routing.me.ID)
 	}
 
-	go update()
-	// for {
-
+	// if len(nodes) > 0 {
+	// 	node.Store([]byte("TEST"))
+	// 	fmt.Println("string:", string(node.LookupData(Hash([]byte("TEST")))))
 	// }
-}
 
-func update() {
-	for {
-	}
 }
 
 func NewKademlia(table *RoutingTable, network *Network) *Kademlia {
 	return &Kademlia{table, network, make(map[KademliaID][]byte)}
 }
 
+// Lookup k closest nodes to target in network, k = bucketSize
 func (kademlia *Kademlia) LookupContacts(target *KademliaID) []Contact {
 
+	data := make(chan []byte)
+	var seen ContactCandidates
+	foundNodes := NewRoutingTable(kademlia.routing.me)
+
+	// Find k initial closest nodes
+	initClosest := kademlia.routing.FindClosestContacts(target, bucketSize)
+	foundNodes.AddContacts(initClosest)
+	
+	for {
+		// Find k currently closest nodes
+		closest := foundNodes.FindClosestContacts(target, bucketSize)
+
+		// Pick alpha nodes from k closest that have not been queried
+		alphaNodes := min(alpha, len(closest))
+		unqueried := findUnqueriedNodes(closest, seen.contacts, alphaNodes)
+
+		// Check if all k closest have been queried
+		if len(unqueried) == 0 {
+			return closest
+		}
+
+		// Send find_node to the alpha closest unqueried nodes
+		kademlia.contactNodes(target, unqueried, foundNodes, data, kademlia.network.SendFindContactMessage)
+		seen.AppendNoDups(unqueried)
+	}
+}
+
+// Contact nodes in querylist with contact rpc, FIND_NODE or FIND_VALUE 
+// FIND_NODE: adds all found nodes in candidate routing table
+// FIND_VALUE: if target data is found return the data else return found nodes
+func (kademlia *Kademlia) contactNodes(target *KademliaID, queryList []Contact, table *RoutingTable, ch chan []byte, ContactMessage func(*Contact, *KademliaID, *Kademlia) Protocol) {
+	
+	var data []byte
+	var wg sync.WaitGroup
+
+	wg.Add(len(queryList))
+	for _, contact := range queryList{
+		go func(contact Contact, target *KademliaID, table *RoutingTable){
+			defer wg.Done()
+			proto := ContactMessage(&contact, target, kademlia)
+			if proto.Rpc == "DATA" {
+				data = proto.Data
+				return
+			}
+			table.AddContacts(proto.Contacts)
+
+		}(contact, target, table)
+	}
+	wg.Wait()
+	if len(data) > 0 {
+		ch <- data
+	}
+}
+
+// Contains function for Contact slice
+func contains(list []Contact, target Contact) bool {
+	for _, contact := range list {
+		if (contact).ID.Equals(target.ID) {
+			return true
+		}
+	}
+	return false
+}
+
+
+// Returns value stored in hash if it exists in network
+// Else returns empty byte slice
+func (kademlia *Kademlia) LookupData(hash string) []byte {
+	target := NewKademliaID(hash)
+	
+	nodeData := kademlia.CheckValue(*target)
+
+	if len(nodeData) > 0 {
+		return nodeData
+	}
+
+	data := make(chan []byte)
 	var seen ContactCandidates
 	foundNodes := NewRoutingTable(kademlia.routing.me)
 
@@ -106,46 +169,23 @@ func (kademlia *Kademlia) LookupContacts(target *KademliaID) []Contact {
 		unqueried := findUnqueriedNodes(closest, seen.contacts, alphaNodes)
 
 
-		if len(unqueried) == 0 {
-			return closest
-		}
-
-		// Send find_node to the alpha closest unqueried nodes
-		kademlia.contactNodes(target, unqueried, foundNodes)
+		// Send find_value to the alpha closest unqueried nodes
+		go kademlia.contactNodes(target, unqueried, foundNodes, data, kademlia.network.SendFindDataMessage)
 		seen.AppendNoDups(unqueried)
-	}
-}
 
-func (kademlia *Kademlia) contactNodes(target *KademliaID, queryList []Contact, table *RoutingTable) {
-	
-	var wg sync.WaitGroup
-	wg.Add(len(queryList))
-	for _, contact := range queryList{
-		go func(contact Contact, target *KademliaID, table *RoutingTable){
-			defer wg.Done()
-			nodes := kademlia.network.SendFindContactMessage(&contact, target, kademlia)
-			table.AddContacts(nodes)
+		
+		msg := <- data
 
-		}(contact, target, table)
-	}
-	wg.Wait()
-}
-
-func contains(list []Contact, target Contact) bool {
-	for _, contact := range list {
-		if (contact).ID.Equals(target.ID) {
-			return true
+		// All k closest have been queried or data is found
+		if len(unqueried) == 0 || len(msg) > 0 {
+			return msg
 		}
 	}
-	return false
 }
 
-func (kademlia *Kademlia) LookupData(hash string) []byte {
-	return kademlia.data[*NewKademliaID(hash)]
-}
-
+// Store data at k closest nodes in network
 func (kademlia *Kademlia) Store(data []byte) string {
-	hash := NewKademliaID(string(data))
+	hash := NewKademliaID(Hash(data))
 	contacts := kademlia.LookupContacts(hash)
 
 	var wg sync.WaitGroup
@@ -165,12 +205,19 @@ func (kademlia *Kademlia) Store(data []byte) string {
 	return hash.String()
 }
 
+// Store data in current node
 func (kademlia *Kademlia) StoreValue(data []byte) {
 	hash := Hash(data)
 	id := NewKademliaID(hash)
 	kademlia.data[*id] = data
 }
 
+// Return data if in current node
+func (kademlia *Kademlia) CheckValue(id KademliaID) []byte {
+	return kademlia.data[id]
+}
+
+// Hash data and set size to IDLength
 func Hash(data []byte) string {
 	hashbytes := sha1.Sum(data)
 	return hex.EncodeToString(hashbytes[0:IDLength])
