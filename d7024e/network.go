@@ -186,20 +186,20 @@ func (network *Network) handleStoreMessage(proto Protocol, node *Kademlia) []byt
 
 // Creates a byte array containing a PING protocol
 func (network *Network) createPingMessage(target Contact, node *Kademlia) []byte {
-	return CreateProtocol("PING", nil, nil, node.routing.me, target)
+	return CreateProtocol("PING", nil, nil, node.routing.Me, target)
 }
 
 // Creates a byte array containing a FIND_NODE protocol
 func (network *Network) createFindContactMessage(contact Contact, target *KademliaID, contacts []Contact, node *Kademlia) []byte {
-	return CreateProtocol("FIND_NODE", contacts, []byte(target.String()), node.routing.me, contact)
+	return CreateProtocol("FIND_NODE", contacts, []byte(target.String()), node.routing.Me, contact)
 }
 
 func (network *Network) createFindDataMessage(rpc string, contacts []Contact, data []byte, contact Contact, node *Kademlia) []byte {
-	return CreateProtocol(rpc, contacts, data, node.routing.me, contact)
+	return CreateProtocol(rpc, contacts, data, node.routing.Me, contact)
 }
 
 func(network *Network) createStoreMessage(data []byte, target Contact, node *Kademlia) []byte {
-	return CreateProtocol("STORE", nil, data, node.routing.me, target)
+	return CreateProtocol("STORE", nil, data, node.routing.Me, target)
 }
 
 func (network *Network) addContacts(contacts []Contact, node *Kademlia) {
