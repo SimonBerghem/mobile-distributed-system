@@ -91,9 +91,6 @@ func TestHandleFindDataMessage(t *testing.T) {
 	assert.NotNil(t, created)
 }
 
-// =====================
-// NEEDS FIX, SHOULD FIND DATA
-// =====================
 func TestHandleFindDataMessageCurrentNode(t *testing.T) {
 	defaultIP := "172.20.0.2"
 	port := 4000
@@ -104,13 +101,11 @@ func TestHandleFindDataMessageCurrentNode(t *testing.T) {
 	node := NewKademlia(routing, network)
 
 	data := []byte("7bcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde")
-	// con2 := NewContact(NewKademliaID("7bcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde"), "localhost:8002")
 	node.StoreValue(data)
 
 	proto := Protocol{"FIND_VALUE", nil, data, defaultCon, defaultCon}
 	created := node.network.handleFindDataMessage(proto, node)
 	assert.NotNil(t, created)
-	// assert.Equal(t, proto, created)
 }
 func TestCreateFindDataMessage(t *testing.T) {
 	defaultIP := "172.20.0.2"

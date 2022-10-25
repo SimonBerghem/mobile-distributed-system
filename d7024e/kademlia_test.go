@@ -38,19 +38,6 @@ func TestNotContains(t *testing.T) {
 	assert.NotEqual(t, true, contains(contacts, NewContact(NewKademliaID("7bcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdf"), defaultIP+":"+strconv.Itoa(port))))
 }
 
-// func TestLookUpData(t *testing.T) {
-// 	defaultIP := "172.20.0.2"
-// 	port := 4000
-// 	defaultCon := NewContact(NewKademliaID("7bcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde"), defaultIP+":"+strconv.Itoa(port))
-// 	routing := NewRoutingTable(defaultCon)
-// 	network := NewNetwork()
-// 	node := NewKademlia(routing, network)
-// 	data := []byte("testdata")
-// 	node.Store(data)
-// 	res := node.LookupData("111deabcdeabcdeabcdeabcdeabcdeabcdeabcde")
-// 	assert.NotNil(t, res)
-// }
-
 func TestStore(t *testing.T) {
 	defaultIP := "172.20.0.2"
 	port := 4000

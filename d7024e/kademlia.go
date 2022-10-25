@@ -7,9 +7,8 @@ import (
 	"math/rand"
 	"net"
 	"strconv"
-	"time"
 	"sync"
-	// "fmt"
+	"time"
 )
 
 // Stores routing table
@@ -48,7 +47,7 @@ func (kademlia *Kademlia) InitNode() {
 
 	contactedGateway := false
 
-	// Ping default node 
+	// Ping default node
 	if defaultIP != ip {
 		node.routing.AddContact(defaultCon)
 		contactedGateway = node.network.SendPingMessage(&defaultCon, node)
@@ -58,15 +57,9 @@ func (kademlia *Kademlia) InitNode() {
 
 	// Connect to the rest of the network
 	if contactedGateway {
-		// nodes = node.LookupContacts(node.routing.me.ID)	
+		// nodes = node.LookupContacts(node.routing.me.ID)
 		node.LookupContacts(node.routing.me.ID)
 	}
-
-	// if len(nodes) > 0 {
-	// 	node.Store([]byte("TEST"))
-	// 	fmt.Println("string:", string(node.LookupData(Hash([]byte("TEST")))))
-	// }
-
 }
 
 func NewKademlia(table *RoutingTable, network *Network) *Kademlia {
@@ -83,7 +76,7 @@ func (kademlia *Kademlia) LookupContacts(target *KademliaID) []Contact {
 	// Find k initial closest nodes
 	initClosest := kademlia.routing.FindClosestContacts(target, bucketSize)
 	foundNodes.AddContacts(initClosest)
-	
+
 	for {
 		// Find k currently closest nodes
 		closest := foundNodes.FindClosestContacts(target, bucketSize)
@@ -103,17 +96,17 @@ func (kademlia *Kademlia) LookupContacts(target *KademliaID) []Contact {
 	}
 }
 
-// Contact nodes in querylist with contact rpc, FIND_NODE or FIND_VALUE 
+// Contact nodes in querylist with contact rpc, FIND_NODE or FIND_VALUE
 // FIND_NODE: adds all found nodes in candidate routing table
 // FIND_VALUE: if target data is found return the data else return found nodes
 func (kademlia *Kademlia) contactNodes(target *KademliaID, queryList []Contact, table *RoutingTable, ch chan []byte, ContactMessage func(*Contact, *KademliaID, *Kademlia) Protocol) {
-	
+
 	var data []byte
 	var wg sync.WaitGroup
 
 	wg.Add(len(queryList))
-	for _, contact := range queryList{
-		go func(contact Contact, target *KademliaID, table *RoutingTable){
+	for _, contact := range queryList {
+		go func(contact Contact, target *KademliaID, table *RoutingTable) {
 			defer wg.Done()
 			proto := ContactMessage(&contact, target, kademlia)
 			if proto.Rpc == "DATA" {
@@ -140,12 +133,11 @@ func contains(list []Contact, target Contact) bool {
 	return false
 }
 
-
 // Returns value stored in hash if it exists in network
 // Else returns empty byte slice
 func (kademlia *Kademlia) LookupData(hash string) []byte {
 	target := NewKademliaID(hash)
-	
+
 	nodeData := kademlia.CheckValue(*target)
 
 	if len(nodeData) > 0 {
@@ -159,7 +151,7 @@ func (kademlia *Kademlia) LookupData(hash string) []byte {
 	// Find k initial closest nodes
 	initClosest := kademlia.routing.FindClosestContacts(target, bucketSize)
 	foundNodes.AddContacts(initClosest)
-	
+
 	for {
 		// Find k currently closest nodes
 		closest := foundNodes.FindClosestContacts(target, bucketSize)
@@ -168,13 +160,11 @@ func (kademlia *Kademlia) LookupData(hash string) []byte {
 		alphaNodes := min(alpha, len(closest))
 		unqueried := findUnqueriedNodes(closest, seen.contacts, alphaNodes)
 
-
 		// Send find_value to the alpha closest unqueried nodes
 		go kademlia.contactNodes(target, unqueried, foundNodes, data, kademlia.network.SendFindDataMessage)
 		seen.AppendNoDups(unqueried)
 
-		
-		msg := <- data
+		msg := <-data
 
 		// All k closest have been queried or data is found
 		if len(unqueried) == 0 || len(msg) > 0 {
@@ -192,7 +182,7 @@ func (kademlia *Kademlia) Store(data []byte) string {
 	wg.Add(len(contacts))
 
 	for _, contact := range contacts {
-		if contact.ID.Equals(kademlia.routing.me.ID){
+		if contact.ID.Equals(kademlia.routing.me.ID) {
 			kademlia.StoreValue(data)
 			continue
 		}
@@ -233,11 +223,11 @@ func min(a int, b int) int {
 // Returns all unqueried nodes, up to count nodes
 func findUnqueriedNodes(closestNodes []Contact, seenNodes []Contact, count int) []Contact {
 	var unqueriedNodes []Contact
-	
+
 	for _, node := range closestNodes {
-		if len(unqueriedNodes) == count{
+		if len(unqueriedNodes) == count {
 			break
-		} else if !contains(seenNodes, node){
+		} else if !contains(seenNodes, node) {
 			unqueriedNodes = append(unqueriedNodes, node)
 		}
 	}
