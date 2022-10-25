@@ -38,6 +38,30 @@ func TestNotContains(t *testing.T) {
 	assert.NotEqual(t, true, contains(contacts, NewContact(NewKademliaID("7bcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdf"), defaultIP+":"+strconv.Itoa(port))))
 }
 
+// func TestLookUpData(t *testing.T) {
+// 	defaultIP := "172.20.0.2"
+// 	port := 4000
+// 	defaultCon := NewContact(NewKademliaID("7bcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde"), defaultIP+":"+strconv.Itoa(port))
+// 	routing := NewRoutingTable(defaultCon)
+// 	network := NewNetwork()
+// 	node := NewKademlia(routing, network)
+// 	data := []byte("testdata")
+// 	node.Store(data)
+// 	res := node.LookupData("111deabcdeabcdeabcdeabcdeabcdeabcdeabcde")
+// 	assert.NotNil(t, res)
+// }
+
+func TestStore(t *testing.T) {
+	defaultIP := "172.20.0.2"
+	port := 4000
+	defaultCon := NewContact(NewKademliaID("7bcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde"), defaultIP+":"+strconv.Itoa(port))
+	routing := NewRoutingTable(defaultCon)
+	network := NewNetwork()
+	node := NewKademlia(routing, network)
+	data := []byte("testdata")
+	node.Store(data)
+}
+
 func TestStoreValue(t *testing.T) {
 	defaultIP := "172.20.0.2"
 	port := 4000
@@ -57,11 +81,6 @@ func TestMin(t *testing.T) {
 func TestMin2(t *testing.T) {
 	min := min(10, 4)
 	assert.Equal(t, min, 4)
-}
-
-func TestGetOutboundIP(t *testing.T) {
-	defaultIP := GetOutboundIP()
-	assert.NotNil(t, defaultIP)
 }
 
 func Test_findUnqueriedNodes(t *testing.T) {
@@ -85,7 +104,6 @@ func Test_findUnqueriedNodes(t *testing.T) {
 		args args
 		want []Contact
 	}{
-		// TODO: Add test cases.
 		{
 			name: "len(unqueriedNodes) == count is false",
 			args: args{
@@ -122,4 +140,9 @@ func Test_findUnqueriedNodes(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestGetOutboundIP(t *testing.T) {
+	defaultIP := GetOutboundIP()
+	assert.NotNil(t, defaultIP)
 }
