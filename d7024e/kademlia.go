@@ -79,7 +79,7 @@ func (kademlia *Kademlia) LookupContacts(target *KademliaID) []Contact {
 
 	data := make(chan []byte)
 	var seen ContactCandidates
-	foundNodes := NewRoutingTable(kademlia.routing.Me)
+	foundNodes := NewRoutingTable(kademlia.routing.me)
 
 	// Find k initial closest nodes
 	initClosest := kademlia.routing.FindClosestContacts(target, bucketSize)
@@ -155,7 +155,7 @@ func (kademlia *Kademlia) LookupData(hash string) string {
 
 	data := make(chan []byte)
 	var seen ContactCandidates
-	foundNodes := NewRoutingTable(kademlia.routing.Me)
+	foundNodes := NewRoutingTable(kademlia.routing.me)
 
 	// Find k initial closest nodes
 	initClosest := kademlia.routing.FindClosestContacts(target, bucketSize)

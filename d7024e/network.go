@@ -12,11 +12,11 @@ type Network struct {
 }
 
 type Protocol struct {
-	Rpc string 			// PING, STORE, FIND_NODE, FIND_VALUE 
-	Contacts []Contact 	
-	Data []byte 		
-	Sender Contact
-	Target Contact
+	Rpc      string // PING, STORE, FIND_NODE, FIND_VALUE
+	Contacts []Contact
+	Data     []byte
+	Sender   Contact
+	Target   Contact
 }
 
 func NewNetwork() *Network {
@@ -123,7 +123,7 @@ func (network *Network) SendFindContactMessage(contact *Contact, target *Kademli
 
 // FIND_VALUE
 func (network *Network) SendFindDataMessage(contact *Contact, target *KademliaID, node *Kademlia) Protocol {
-	
+
 	conn := CreateConnection(contact.Address)
 	defer conn.Close()
 
@@ -186,20 +186,20 @@ func (network *Network) handleStoreMessage(proto Protocol, node *Kademlia) []byt
 
 // Creates a byte array containing a PING protocol
 func (network *Network) createPingMessage(target Contact, node *Kademlia) []byte {
-	return CreateProtocol("PING", nil, nil, node.routing.Me, target)
+	return CreateProtocol("PING", nil, nil, node.routing.me, target)
 }
 
 // Creates a byte array containing a FIND_NODE protocol
 func (network *Network) createFindContactMessage(contact Contact, target *KademliaID, contacts []Contact, node *Kademlia) []byte {
-	return CreateProtocol("FIND_NODE", contacts, []byte(target.String()), node.routing.Me, contact)
+	return CreateProtocol("FIND_NODE", contacts, []byte(target.String()), node.routing.me, contact)
 }
 
 func (network *Network) createFindDataMessage(rpc string, contacts []Contact, data []byte, contact Contact, node *Kademlia) []byte {
-	return CreateProtocol(rpc, contacts, data, node.routing.Me, contact)
+	return CreateProtocol(rpc, contacts, data, node.routing.me, contact)
 }
 
-func(network *Network) createStoreMessage(data []byte, target Contact, node *Kademlia) []byte {
-	return CreateProtocol("STORE", nil, data, node.routing.Me, target)
+func (network *Network) createStoreMessage(data []byte, target Contact, node *Kademlia) []byte {
+	return CreateProtocol("STORE", nil, data, node.routing.me, target)
 }
 
 func (network *Network) addContacts(contacts []Contact, node *Kademlia) {
@@ -213,11 +213,11 @@ func CreateConnection(address string) net.Conn {
 	if err != nil {
 		fmt.Println(err)
 		panic(err)
-	}	
+	}
 	return conn
 }
 
-func ReadFromConnection(conn net.Conn, buf []byte) []byte{
+func ReadFromConnection(conn net.Conn, buf []byte) []byte {
 	rlen, err := conn.Read(buf)
 
 	if err != nil {
@@ -240,15 +240,15 @@ func Unserialize(msg []byte) Protocol {
 	return proto
 }
 
-func CreateProtocol(rpc string, contacts []Contact, data []byte, sender Contact, target Contact) []byte{
-	protocol, err := 
-		json.Marshal( 
+func CreateProtocol(rpc string, contacts []Contact, data []byte, sender Contact, target Contact) []byte {
+	protocol, err :=
+		json.Marshal(
 			&Protocol{
 				Rpc:      rpc,
 				Contacts: contacts,
-				Data: data,
-				Sender: sender,
-				Target: target})
+				Data:     data,
+				Sender:   sender,
+				Target:   target})
 
 	if err != nil {
 		fmt.Println(err)

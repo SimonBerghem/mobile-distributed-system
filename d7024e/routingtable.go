@@ -1,13 +1,11 @@
 package d7024e
 
-import (
-	// "fmt"
-)
+// "fmt"
 
 // RoutingTable definition
 // keeps a refrence contact of me and an array of buckets
 type RoutingTable struct {
-	Me      Contact
+	me      Contact
 	buckets [IDLength * 8]*bucket
 }
 
@@ -17,13 +15,13 @@ func NewRoutingTable(me Contact) *RoutingTable {
 	for i := 0; i < IDLength*8; i++ {
 		routingTable.buckets[i] = newBucket()
 	}
-	routingTable.Me = me
+	routingTable.me = me
 	return routingTable
 }
 
 // AddContact add a new contact to the correct Bucket
 func (routingTable *RoutingTable) AddContact(contact Contact) {
-	if contact.ID.Equals(routingTable.Me.ID){
+	if contact.ID.Equals(routingTable.me.ID) {
 		return
 	}
 	bucketIndex := routingTable.getBucketIndex(contact.ID)
@@ -67,7 +65,7 @@ func (routingTable *RoutingTable) FindClosestContacts(target *KademliaID, count 
 
 // getBucketIndex get the correct Bucket index for the KademliaID
 func (routingTable *RoutingTable) getBucketIndex(id *KademliaID) int {
-	distance := id.CalcDistance(routingTable.Me.ID)
+	distance := id.CalcDistance(routingTable.me.ID)
 	for i := 0; i < IDLength; i++ {
 		for j := 0; j < 8; j++ {
 			if (distance[i]>>uint8(7-j))&0x1 != 0 {
