@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"sync"
 	"time"
+	// "fmt"
 )
 
 // Stores routing table
@@ -20,7 +21,7 @@ type Kademlia struct {
 
 const alpha = 3
 
-func (kademlia *Kademlia) InitNode() {
+func (kademlia *Kademlia) InitNode(ch chan Kademlia) {
 	defaultIP := "172.20.0.2"
 	port := 4000
 	defaultCon := NewContact(NewKademliaID("7bcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde"), defaultIP+":"+strconv.Itoa(port))
@@ -43,6 +44,7 @@ func (kademlia *Kademlia) InitNode() {
 	network := NewNetwork()
 	node := NewKademlia(routing, network)
 
+	ch <- *node
 	go network.Listen(ip, port, node)
 
 	contactedGateway := false
@@ -60,6 +62,12 @@ func (kademlia *Kademlia) InitNode() {
 		// nodes = node.LookupContacts(node.routing.me.ID)
 		node.LookupContacts(node.routing.me.ID)
 	}
+
+	// if len(nodes) > 0 {
+	// 	node.Store([]byte("TEST"))
+	// 	fmt.Println("string:", string(node.LookupData(Hash([]byte("TEST")))))
+	// }
+
 }
 
 func NewKademlia(table *RoutingTable, network *Network) *Kademlia {
@@ -71,13 +79,14 @@ func (kademlia *Kademlia) LookupContacts(target *KademliaID) []Contact {
 
 	data := make(chan []byte)
 	var seen ContactCandidates
-	foundNodes := NewRoutingTable(kademlia.routing.me)
+	foundNodes := NewRoutingTable(kademlia.routing.Me)
 
 	// Find k initial closest nodes
 	initClosest := kademlia.routing.FindClosestContacts(target, bucketSize)
 	foundNodes.AddContacts(initClosest)
 
 	for {
+
 		// Find k currently closest nodes
 		closest := foundNodes.FindClosestContacts(target, bucketSize)
 
@@ -135,18 +144,18 @@ func contains(list []Contact, target Contact) bool {
 
 // Returns value stored in hash if it exists in network
 // Else returns empty byte slice
-func (kademlia *Kademlia) LookupData(hash string) []byte {
+func (kademlia *Kademlia) LookupData(hash string) string {
 	target := NewKademliaID(hash)
 
 	nodeData := kademlia.CheckValue(*target)
 
 	if len(nodeData) > 0 {
-		return nodeData
+		return string(nodeData)
 	}
 
 	data := make(chan []byte)
 	var seen ContactCandidates
-	foundNodes := NewRoutingTable(kademlia.routing.me)
+	foundNodes := NewRoutingTable(kademlia.routing.Me)
 
 	// Find k initial closest nodes
 	initClosest := kademlia.routing.FindClosestContacts(target, bucketSize)
@@ -168,7 +177,7 @@ func (kademlia *Kademlia) LookupData(hash string) []byte {
 
 		// All k closest have been queried or data is found
 		if len(unqueried) == 0 || len(msg) > 0 {
-			return msg
+			return string(msg)
 		}
 	}
 }

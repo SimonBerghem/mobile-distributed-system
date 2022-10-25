@@ -22,6 +22,7 @@ func InitCLI(output io.Writer, node d7024e.Kademlia) {
 	scanner := bufio.NewScanner(input)
 
 	for {
+		fmt.Print(">")
 		scanner.Scan()
 		line := scanner.Text()
 		if len(line) == 0 {

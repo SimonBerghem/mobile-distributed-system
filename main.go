@@ -11,7 +11,11 @@ import (
 var output io.Writer = os.Stdout
 
 func main() {
+	ch := make(chan d7024e.Kademlia)
+
 	node := d7024e.Kademlia{}
-	node.InitNode()
-	cmd.InitCLI(output, node)
+	go node.InitNode(ch)
+
+	createdNode := <- ch
+	cmd.InitCLI(output, createdNode)
 }
