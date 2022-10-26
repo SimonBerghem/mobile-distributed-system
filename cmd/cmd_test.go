@@ -17,8 +17,8 @@ var out io.Writer = os.Stdout
 func runCommandTester(line string) string {
 	out = bytes.NewBuffer(nil)
 
-	command, args := inputSplit(line)
-	runCommand(out, nil, command, args)
+	command, arg := inputSplit(line)
+	runCommand(out, nil, command, arg)
 
 	str := out.(*bytes.Buffer).String()
 	return strings.TrimSuffix(str, "\n")
@@ -34,13 +34,13 @@ func TestInitCLI(t *testing.T) {
 	InitCLI(out, *node)
 }
 
-func TestPutNoArg(t *testing.T) {
-	assert.Equal(t, invalidArgs, runCommandTester("put"))
-}
+// func TestPutNoArg(t *testing.T) {
+// 	assert.Equal(t, invalidArgs, runCommandTester("put"))
+// }
 
-func TestPutNoArgAlias(t *testing.T) {
-	assert.Equal(t, invalidArgs, runCommandTester("p"))
-}
+// func TestPutNoArgAlias(t *testing.T) {
+// 	assert.Equal(t, invalidArgs, runCommandTester("p"))
+// }
 
 func TestGetNoArg(t *testing.T) {
 	assert.Equal(t, invalidArgs, runCommandTester("get"))
