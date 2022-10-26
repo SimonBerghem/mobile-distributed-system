@@ -28,8 +28,8 @@ func InitCLI(output io.Writer, node d7024e.Kademlia) {
 		if len(line) == 0 {
 			break
 		}
-		command, args := inputSplit(line)
-		runCommand(output, &node, command, args)
+		command, arg := inputSplit(line)
+		runCommand(output, &node, command, arg)
 	}
 
 	err := scanner.Err()
@@ -38,40 +38,28 @@ func InitCLI(output io.Writer, node d7024e.Kademlia) {
 	}
 }
 
-func inputSplit(line string) (string, []string) {
-	args := strings.Split(line, " ")
-	command := args[0]
-	args = args[1:]
-	return command, args
+func inputSplit(line string) (string, string) {
+	input := strings.Split(line, " ")
+	command := input[0]
+	input = input[1:]
+	arg := strings.Join(input, " ")
+	return command, arg
 }
 
-func runCommand(output io.Writer, node *d7024e.Kademlia, command string, args []string) {
-	n := len(args)
+func runCommand(output io.Writer, node *d7024e.Kademlia, command string, arg string) {
 	switch command {
 	case "put":
-		if n == 1 {
-			fmt.Fprintln(output, node.Store([]byte(args[0])))
-		} else {
-			fmt.Fprintln(output, invalidArgs)
-		}
+		fmt.Fprintln(output, node.Store([]byte(arg)))
+
 	case "p":
-		if n == 1 {
-			fmt.Fprintln(output, node.Store([]byte(args[0])))
-		} else {
-			fmt.Fprintln(output, invalidArgs)
-		}
+		fmt.Fprintln(output, node.Store([]byte(arg)))
+
 	case "get":
-		if n == 1 {
-			fmt.Fprintln(output, node.LookupData(args[0]))
-		} else {
-			fmt.Fprintln(output, invalidArgs)
-		}
+		fmt.Fprintln(output, node.LookupData(arg))
+
 	case "g":
-		if n == 1 {
-			fmt.Fprintln(output, node.LookupData(args[0]))
-		} else {
-			fmt.Fprintln(output, invalidArgs)
-		}
+		fmt.Fprintln(output, node.LookupData(arg))
+
 	case "exit":
 		os.Exit(1)
 	case "e":
