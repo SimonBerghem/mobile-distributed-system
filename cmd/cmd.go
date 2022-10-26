@@ -13,6 +13,7 @@ import (
 
 const invalidCommand = "Invalid command, try again"
 const invalidArgs = "Invalid argument or to many arguments"
+const version = "0.0.0"
 
 var input = os.Stdin
 
@@ -74,6 +75,10 @@ func runCommand(output io.Writer, node *d7024e.Kademlia, command string, arg str
 		fmt.Fprintln(output, getHelpText())
 	case "h":
 		fmt.Fprintln(output, getHelpText())
+	case "version":
+		fmt.Fprintln(output, version)
+	case "v":
+		fmt.Fprintln(output, version)
 	default:
 		fmt.Fprintln(output, invalidCommand)
 	}
@@ -86,7 +91,7 @@ func getHelpText() string {
 	USAGE:
 		A CLI for running Kademlia commands
 	VERSION:
-	   0.0.0
+	   ` + version + `
 	AUTHOR:
 		Casper Lundberg, Simon Malmström Berghem & Emil Wiklander
 	COMMANDS:
