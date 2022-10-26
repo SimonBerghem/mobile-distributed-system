@@ -58,6 +58,14 @@ func TestHelpAlias(t *testing.T) {
 	assert.Equal(t, getHelpText(), runCommandTester("h"))
 }
 
+func TestVersion(t *testing.T) {
+	assert.Equal(t, "0.0.0", runCommandTester("version"))
+}
+
+func TestVersionAlias(t *testing.T) {
+	assert.Equal(t, "0.0.0", runCommandTester("v"))
+}
+
 func TestDefault(t *testing.T) {
 	assert.Equal(t, invalidCommand, runCommandTester(""))
 }
