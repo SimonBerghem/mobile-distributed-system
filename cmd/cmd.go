@@ -55,11 +55,17 @@ func runCommand(output io.Writer, node *d7024e.Kademlia, command string, arg str
 		fmt.Fprintln(output, node.Store([]byte(arg)))
 
 	case "get":
-		fmt.Fprintln(output, node.LookupData(arg))
-
+		if len(arg) == 40 {
+			fmt.Fprintln(output, node.LookupData(arg))
+		} else {
+			fmt.Fprintln(output, invalidArgs)
+		}
 	case "g":
-		fmt.Fprintln(output, node.LookupData(arg))
-
+		if len(arg) == 40 {
+			fmt.Fprintln(output, node.LookupData(arg))
+		} else {
+			fmt.Fprintln(output, invalidArgs)
+		}
 	case "exit":
 		os.Exit(1)
 	case "e":
