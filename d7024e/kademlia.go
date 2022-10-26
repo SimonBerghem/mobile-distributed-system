@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"sync"
 	"time"
-	// "fmt"
+	"fmt"
 )
 
 // Stores routing table
@@ -86,7 +86,6 @@ func (kademlia *Kademlia) LookupContacts(target *KademliaID) []Contact {
 	foundNodes.AddContacts(initClosest)
 
 	for {
-
 		// Find k currently closest nodes
 		closest := foundNodes.FindClosestContacts(target, bucketSize)
 
@@ -100,8 +99,10 @@ func (kademlia *Kademlia) LookupContacts(target *KademliaID) []Contact {
 		}
 
 		// Send find_node to the alpha closest unqueried nodes
-		kademlia.contactNodes(target, unqueried, foundNodes, data, kademlia.network.SendFindContactMessage)
+		go kademlia.contactNodes(target, unqueried, foundNodes, data, kademlia.network.SendFindContactMessage)
 		seen.AppendNoDups(unqueried)
+		// test := <-data
+
 	}
 }
 
@@ -127,9 +128,14 @@ func (kademlia *Kademlia) contactNodes(target *KademliaID, queryList []Contact, 
 		}(contact, target, table)
 	}
 	wg.Wait()
-	if len(data) > 0 {
-		ch <- data
-	}
+
+	// if len(data) > 0 {
+	// 	ch <- data
+	// } else {
+	// 	fmt.Println("YUP")
+	// 	ch <- nil
+	// }
+	ch <- data
 }
 
 // Contains function for Contact slice
@@ -176,8 +182,10 @@ func (kademlia *Kademlia) LookupData(hash string) string {
 		msg := <-data
 
 		// All k closest have been queried or data is found
-		if len(unqueried) == 0 || len(msg) > 0 {
+		if len(msg) > 0 {
 			return string(msg)
+		} else if len(unqueried) == 0 {
+			return "Data not found"
 		}
 	}
 }
@@ -186,7 +194,7 @@ func (kademlia *Kademlia) LookupData(hash string) string {
 func (kademlia *Kademlia) Store(data []byte) string {
 	hash := NewKademliaID(Hash(data))
 	contacts := kademlia.LookupContacts(hash)
-
+	fmt.Println("Found contacts", contacts)
 	var wg sync.WaitGroup
 	wg.Add(len(contacts))
 

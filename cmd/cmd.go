@@ -61,13 +61,13 @@ func runCommand(output io.Writer, node *d7024e.Kademlia, command string, args []
 			fmt.Fprintln(output, invalidArgs)
 		}
 	case "get":
-		if n == 1 {
+		if n == 1 && len(args[0]) == 40 {
 			fmt.Fprintln(output, node.LookupData(args[0]))
 		} else {
 			fmt.Fprintln(output, invalidArgs)
 		}
 	case "g":
-		if n == 1 {
+		if n == 1 && len(args[0]) == 40 {
 			fmt.Fprintln(output, node.LookupData(args[0]))
 		} else {
 			fmt.Fprintln(output, invalidArgs)
